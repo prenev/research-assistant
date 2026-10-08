@@ -1,0 +1,118 @@
+{
+ "research-question": {
+  "category": "Overview",
+  "position": 0,
+  "bodies": [
+   "## Research question\n\n**Can a minimal panel of circulating inflammatory proteins improve the prediction of incident frontotemporal dementia (FTD) beyond demographics and established blood biomarkers?**\n\n## Planned analysis\n\nThe planned analysis uses UK Biobank baseline Olink plasma proteomics. Penalised Cox regression with repeated nested cross-validation compares three models:\n\n| Model | Predictors |\n|---|---|\n| **M1** | age + sex |\n| **M2** | M1 + NfL (Olink NEFL) |\n| **M3** | M2 + selected inflammatory proteins |\n\nThe primary comparison is **M3 vs M2**, using the paired change in time-dependent AUC plus calibration. Secondary analyses add GFAP and prespecified all-cause dementia risk factors. Sensitivity analyses exclude diagnoses within 2 and 5 years, examine participants with markedly raised CRP, and adjust for baseline depression.\n"
+  ]
+ },
+ "intended-contributions": {
+  "category": "Overview",
+  "position": 1,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "lit-introduction": {
+  "category": "Literature review",
+  "position": 0,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "lit-peripheral-inflammation": {
+  "category": "Literature review",
+  "position": 1,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "lit-presymptomatic-signal": {
+  "category": "Literature review",
+  "position": 2,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "lit-added-value": {
+  "category": "Literature review",
+  "position": 3,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "lit-population-method": {
+  "category": "Literature review",
+  "position": 4,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "lit-synthesis-gap": {
+  "category": "Literature review",
+  "position": 5,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "methods-population-outcome": {
+  "category": "Methods",
+  "position": 0,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "methods-biomarkers": {
+  "category": "Methods",
+  "position": 1,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "methods-model-validation": {
+  "category": "Methods",
+  "position": 2,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "methods-performance": {
+  "category": "Methods",
+  "position": 3,
+  "bodies": [
+   ":::note Content pending\nThis page is waiting for the matching section of the A3 document. Edit this page to add it. Use `{{cite:n}}` for references and `{{paper:slug}}` for paper chips.\n:::\n"
+  ]
+ },
+ "data-policy": {
+  "category": "Project",
+  "position": 0,
+  "bodies": [
+   ":::danger No participant-level data\nThis notebook must **never** hold UK Biobank participant-level data.\n:::\n\n## What belongs here\n\n- Protein names and panel annotations\n- Literature, plans, decisions and notes\n- **Permitted aggregate results** only\n\n## What does not\n\n- Any row-level or participant-level data, in any form (tables, CSVs, screenshots, plots of individual points)\n- Outputs that could identify participants or fall below the disclosure thresholds set by the data access terms\n\n## How the site enforces this\n\n- The results form shows a persistent policy warning.\n- If the number of events is below the minimum set in site settings (default 10), you must tick a confirmation that the figure is permitted to be shown.\n- Image uploads in the editor carry a reminder not to upload outputs containing participant-level data.\n- There is no feature for uploading participant data. The only CSV import is the Zotero literature export.\n"
+  ]
+ },
+ "how-to-use": {
+  "category": "Project",
+  "position": 1,
+  "bodies": [
+   "This is a personal research notebook. Everything is edited from the browser, so you never need to touch code or files.\n\n## Content types\n\n- **Docs**: the sidebar pages (research question, literature review, methods, project notes)\n- **Papers** and **Proteins**, linked through **Findings** (one finding per paper–protein result)\n- **Log**: dated notes in blog form\n- **Pipeline**: analysis stages and their status\n- **Decisions**: analysis decisions, with whether they were prespecified\n\n## Embeds\n\n| Shortcode | Renders |\n|---|---|\n| `{{cite:1}}` or `{{cite:1,2}}` | IEEE-style `[1]`, `[1], [2]`, linking to the paper |\n| `{{paper:slug}}` | Paper chip with hover card |\n| `{{protein:slug}}` | Protein chip linking to its page |\n| `{{viz:evidence-matrix population=general_population}}` | A visualisation, optionally filtered |\n\n:::info Build status\nThe editing interface and visualisations arrive in later build phases. Until then, content is managed through the API and the Django admin.\n:::\n"
+  ]
+ },
+ "_categories": [
+  {
+   "title": "Overview",
+   "position": 0
+  },
+  {
+   "title": "Literature review",
+   "position": 1
+  },
+  {
+   "title": "Methods",
+   "position": 2
+  },
+  {
+   "title": "Project",
+   "position": 3
+  }
+ ]
+}

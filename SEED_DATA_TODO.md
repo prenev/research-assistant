@@ -12,8 +12,9 @@ these can be filled in.
 - [ ] **Findings** (paper–protein results), e.g. those the prompt cites for [2], [9], [11], [13],
       [14], [28]. The prompt only gives examples, and the full list must come from the A3 text.
 - [ ] **Requirement assessments** (paper × five requirements) from the synthesis section.
-- [ ] **Docs page bodies**, currently placeholder notes (citations to be converted to `{{cite:n}}`):
-      Intended contributions; all six Literature review pages; all four Methods pages.
+- [ ] **Literature and methods write-ups.** The docs sidebar no longer has placeholder literature-review
+      and methods pages (the research is at an early stage). Add pages for them when the reading
+      is done, from the A3 text if you have one.
 - [ ] **Decision dates** (currently empty) and **decision rationales** (currently empty). The five
       decision titles and wording come from the prompt's summary of the A3 methods. Check them
       against the A3 and add any further prespecified decisions it states.

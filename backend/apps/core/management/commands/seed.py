@@ -22,8 +22,85 @@ def load(name):
     return json.loads((SEED_DIR / name).read_text(encoding="utf-8"))
 
 
+def same_text(a: str, b: str) -> bool:
+    return a.strip() == b.strip()
+
+
 class Command(BaseCommand):
     help = "Load seed data (safe to run repeatedly)."
+
+    def seed_docs(self, note):
+        """Create the docs sidebar, and move an older seeded sidebar over to it without ever
+        overwriting something you wrote: only pages whose text is still exactly what an earlier
+        seed wrote are replaced or retired (to the Trash, restorable for 30 days)."""
+        legacy = load("legacy_seed.json")
+        legacy.pop("_categories", None)
+        plan = load("docs.json")
+        wanted = {p["slug"] for c in plan for p in c["pages"]}
+
+        # 1. categories: reuse (and rename) an older seeded category, else create one
+        categories = {}
+        for pos, cat in enumerate(plan):
+            obj = DocCategory.all_objects.filter(slug=cat["slug"], parent=None).first()
+            if obj is None:
+                for old_title in cat.get("renames", []):
+                    obj = DocCategory.objects.filter(title=old_title, parent=None).first()
+                    if obj:
+                        obj.title, obj.slug, obj.position = cat["title"], cat["slug"], pos
+                        obj.save()
+                        note("doc_categories_renamed", True)
+                        break
+            if obj is None:
+                obj = DocCategory.objects.filter(title=cat["title"], parent=None).first()
+            if obj is None:
+                obj = DocCategory.objects.create(title=cat["title"], slug=cat["slug"], position=pos)
+                note("doc_categories", True)
+            categories[cat["slug"]] = obj
+
+        # 2. retire old seeded pages that are no longer wanted, if untouched
+        for slug, old in legacy.items():
+            if slug in wanted:
+                continue
+            page = DocPage.objects.filter(slug=slug).first()
+            if page is None:
+                continue
+            untouched = not page.draft_body and any(same_text(page.body, b) for b in old["bodies"])
+            if untouched:
+                page.delete()
+                note("doc_pages_retired", True)
+            else:
+                self.stdout.write(
+                    f"Kept '{page.title}': you have edited it, so it was not retired."
+                )
+
+        # 3. pages: create missing; refresh untouched older seed pages; never touch edited ones
+        for cat in plan:
+            category = categories[cat["slug"]]
+            for ppos, page in enumerate(cat["pages"]):
+                body = (SEED_DIR / "docs" / page["body_file"]).read_text(encoding="utf-8")
+                existing = DocPage.all_objects.filter(slug=page["slug"]).first()
+                if existing is None:
+                    DocPage.objects.create(
+                        title=page["title"], slug=page["slug"], category=category,
+                        position=ppos, body=body,
+                    )  # fmt: skip
+                    note("doc_pages", True)
+                    continue
+                old = legacy.get(page["slug"])
+                if existing.deleted_at or not old or existing.draft_body:
+                    continue  # trashed by you, never seeded before, or mid-edit: leave alone
+                changed = False
+                if any(same_text(existing.body, b) for b in old["bodies"]) and not same_text(
+                    existing.body, body
+                ):
+                    existing.body, existing.title = body, page["title"]
+                    changed = True
+                    note("doc_pages_updated", True)
+                if existing.position == old["position"] and existing.position != ppos:
+                    existing.position = ppos  # still where the seed put it, so move it
+                    changed = True
+                if changed:
+                    existing.save()
 
     @transaction.atomic
     def handle(self, *args, **opts):
@@ -70,23 +147,7 @@ class Command(BaseCommand):
             Decision.objects.create(**d)
             note("decisions", True)
 
-        for pos, cat in enumerate(load("docs.json")):
-            category = DocCategory.all_objects.filter(title=cat["title"], parent=None).first()
-            if category is None:
-                category = DocCategory.objects.create(title=cat["title"], position=pos)
-                note("doc_categories", True)
-            for ppos, page in enumerate(cat["pages"]):
-                if DocPage.all_objects.filter(slug=page["slug"]).exists():
-                    continue
-                body = (SEED_DIR / "docs" / page["body_file"]).read_text(encoding="utf-8")
-                DocPage.objects.create(
-                    title=page["title"],
-                    slug=page["slug"],
-                    category=category,
-                    position=ppos,
-                    body=body,
-                )
-                note("doc_pages", True)
+        self.seed_docs(note)
 
         if not LogPost.all_objects.filter(slug="notebook-set-up").exists():
             LogPost.objects.create(

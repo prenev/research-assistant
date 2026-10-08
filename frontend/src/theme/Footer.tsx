@@ -13,20 +13,17 @@ export function Footer() {
             <ul className="footer__items clean-list">
               <li className="footer__item">
                 <Link className="footer__link-item" to="/docs">
-                  Overview
+                  Start here
                 </Link>
               </li>
               <li className="footer__item">
-                <Link className="footer__link-item" to="/docs/lit-introduction">
-                  Literature review
+                <Link className="footer__link-item" to="/docs/reading-plan">
+                  Reading plan
                 </Link>
               </li>
               <li className="footer__item">
-                <Link
-                  className="footer__link-item"
-                  to="/docs/methods-population-outcome"
-                >
-                  Methods
+                <Link className="footer__link-item" to="/docs/planned-analysis">
+                  Planned analysis
                 </Link>
               </li>
             </ul>

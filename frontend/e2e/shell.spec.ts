@@ -49,6 +49,9 @@ test("docs: three-column layout, TOC and prev/next", async ({ page }) => {
   await page.goto("/docs/research-question");
   await expect(page.locator(".doc-sidebar")).toBeVisible();
   await expect(page.locator(".table-of-contents")).toBeVisible();
-  await page.getByRole("link", { name: /Next/ }).click();
-  await expect(page).toHaveURL(/intended-contributions/);
+  await page
+    .locator("nav.pagination-nav")
+    .getByRole("link", { name: /Next/ })
+    .click();
+  await expect(page).toHaveURL(/where-things-stand/);
 });

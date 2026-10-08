@@ -1,6 +1,10 @@
 [
   {
-    "title": "Overview",
+    "title": "Start here",
+    "slug": "start-here",
+    "renames": [
+      "Overview"
+    ],
     "pages": [
       {
         "title": "Research question",
@@ -8,75 +12,65 @@
         "body_file": "research-question.md"
       },
       {
-        "title": "Intended contributions",
-        "slug": "intended-contributions",
-        "body_file": "intended-contributions.md"
+        "title": "Where things stand",
+        "slug": "where-things-stand",
+        "body_file": "where-things-stand.md"
       }
     ]
   },
   {
-    "title": "Literature review",
+    "title": "Reading",
+    "slug": "reading",
+    "renames": [
+      "Literature review"
+    ],
     "pages": [
       {
-        "title": "Introduction",
-        "slug": "lit-introduction",
-        "body_file": "lit-introduction.md"
+        "title": "Reading plan",
+        "slug": "reading-plan",
+        "body_file": "reading-plan.md"
       },
       {
-        "title": "Peripheral inflammation in FTD",
-        "slug": "lit-peripheral-inflammation",
-        "body_file": "lit-peripheral-inflammation.md"
+        "title": "Open questions",
+        "slug": "open-questions",
+        "body_file": "open-questions.md"
       },
       {
-        "title": "A signal before symptom onset",
-        "slug": "lit-presymptomatic-signal",
-        "body_file": "lit-presymptomatic-signal.md"
-      },
-      {
-        "title": "Added value beyond existing blood markers",
-        "slug": "lit-added-value",
-        "body_file": "lit-added-value.md"
-      },
-      {
-        "title": "A population setting and method to test it",
-        "slug": "lit-population-method",
-        "body_file": "lit-population-method.md"
-      },
-      {
-        "title": "Synthesis and research gap",
-        "slug": "lit-synthesis-gap",
-        "body_file": "lit-synthesis-gap.md"
+        "title": "Glossary",
+        "slug": "glossary",
+        "body_file": "glossary.md"
       }
     ]
   },
   {
-    "title": "Methods",
+    "title": "Analysis plan (draft)",
+    "slug": "analysis-plan",
+    "renames": [
+      "Methods"
+    ],
     "pages": [
       {
-        "title": "Population and outcome",
-        "slug": "methods-population-outcome",
-        "body_file": "methods-population-outcome.md"
+        "title": "Planned analysis",
+        "slug": "planned-analysis",
+        "body_file": "planned-analysis.md"
       },
       {
-        "title": "Biomarkers and comparators",
-        "slug": "methods-biomarkers",
-        "body_file": "methods-biomarkers.md"
-      },
-      {
-        "title": "Model development and validation",
-        "slug": "methods-model-validation",
-        "body_file": "methods-model-validation.md"
-      },
-      {
-        "title": "Performance and robustness",
-        "slug": "methods-performance",
-        "body_file": "methods-performance.md"
+        "title": "Things to decide",
+        "slug": "things-to-decide",
+        "body_file": "things-to-decide.md"
       }
     ]
   },
   {
     "title": "Project",
+    "slug": "project",
+    "renames": [],
     "pages": [
+      {
+        "title": "Next steps",
+        "slug": "next-steps",
+        "body_file": "next-steps.md"
+      },
       {
         "title": "Data policy",
         "slug": "data-policy",

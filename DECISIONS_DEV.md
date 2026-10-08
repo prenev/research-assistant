@@ -85,3 +85,11 @@ Deviations from, or interpretations of, `PROMPT.md`.
     asks for a size the image supports and returns the original when it is already small, plus an
     `original` URL. In the browser an image that fails tries the original, and if that fails too it is
     removed from the view instead of showing a broken icon.
+32. **Docs sidebar rebuilt for an early-stage project.** The first seed mirrored a finished A3 write-up
+    (six literature-review pages, four methods pages) with empty placeholders, which implied work that
+    has not happened. It is now four short sections: *Start here*, *Reading*, *Analysis plan (draft)*,
+    *Project*. Pages are prompts and checklists. The only research facts used are the ones you gave me
+    (the question and the planned M1/M2/M3 analysis), and the glossary holds general definitions only.
+    The seed upgrades an older deployment safely: categories are renamed, old stub pages that you never
+    edited go to the Trash (restorable for 30 days), untouched pages get the new text, and anything you
+    edited or trashed yourself is left alone. Meeting notes go in the Log with a tag, not a docs page.
