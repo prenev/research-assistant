@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Link,
   Navigate,
@@ -7,11 +7,12 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useList, type Obj } from "../api/crud";
+import { useMe } from "../api/hooks";
 import { Badge } from "../components/Badge";
 import { PaperChip, ProteinChip } from "../components/Embeds";
 import { ItemActions } from "../components/ItemActions";
 import { Markdown } from "../components/Markdown";
-import { useForms } from "../forms/FormHost";
+import { useNewPage } from "../lib/useNewPage";
 import {
   formatDate,
   fullBody,
@@ -69,7 +70,7 @@ function BlogLayout({
   posts: Obj[];
 }) {
   const { editing } = useEditMode();
-  const { openForm } = useForms();
+  const { newLogPost } = useNewPage();
   return (
     <Layout title={title}>
       <div className="container margin-vert--lg">
@@ -99,7 +100,7 @@ function BlogLayout({
                 <button
                   type="button"
                   className="button button--primary button--sm margin-top--md"
-                  onClick={() => openForm("logPost")}
+                  onClick={() => newLogPost()}
                 >
                   New log post
                 </button>
@@ -217,11 +218,25 @@ export function LogPostPage() {
   const { editing } = useEditMode();
   const navigate = useNavigate();
   const [editingBody, setEditingBody] = useState(false);
+  const [isNew, setIsNew] = useState(false);
+  const [sp, setSp] = useSearchParams();
   const { data: papers } = useList("papers");
   const { data: proteins } = useList("proteins");
   const { data: stages } = useList("pipeline-stages");
   const i = posts.findIndex((p) => p.slug === slug);
   const post = posts[i];
+  const { data: me } = useMe();
+
+  // A brand-new post arrives with ?edit=1: open the editor straight away, cursor in the title.
+  useEffect(() => {
+    if (sp.get("edit") === "1" && post && me?.authenticated) {
+      setEditingBody(true);
+      setIsNew(true);
+      const next = new URLSearchParams(sp);
+      next.delete("edit");
+      setSp(next, { replace: true });
+    }
+  }, [post?.id, me?.authenticated]); // eslint-disable-line react-hooks/exhaustive-deps
   if (loading)
     return (
       <BlogLayout title="Log" posts={posts}>
@@ -276,7 +291,13 @@ export function LogPostPage() {
           <DocEditor
             page={post as never}
             endpoint="log-posts"
-            onDone={() => setEditingBody(false)}
+            focusTitle={isNew}
+            onDone={(newSlug) => {
+              setEditingBody(false);
+              setIsNew(false);
+              if (newSlug && newSlug !== slug)
+                navigate(`/log/${newSlug}`, { replace: true });
+            }}
           />
         ) : (
           <Markdown source={fullBody(post.body)} />

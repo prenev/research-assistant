@@ -3,7 +3,7 @@ import { api } from "../api/client";
 import { useSaveMutation } from "../api/crud";
 import { useFeedback } from "../components/Feedback";
 import { HistoryPanel } from "../components/HistoryPanel";
-import { RichEditor } from "../editor/LazyRichEditor";
+import { RichEditor, type RichEditorHandle } from "../editor/LazyRichEditor";
 
 type Status = "idle" | "saving" | "saved" | "error";
 
@@ -32,10 +32,13 @@ export function DocEditor({
   page,
   onDone,
   endpoint = "doc-pages",
+  focusTitle = false,
 }: {
   page: Editable;
-  onDone: () => void;
+  onDone: (newSlug?: string) => void;
   endpoint?: "doc-pages" | "log-posts";
+  /** Start with the cursor in the title (for a brand-new page). */
+  focusTitle?: boolean;
 }) {
   const hasDraft = !!page.draft_body && page.draft_body !== page.body;
   const [useDraft, setUseDraft] = useState(true);
@@ -49,7 +52,17 @@ export function DocEditor({
   const save = useSaveMutation(endpoint);
   const { confirm, toast } = useFeedback();
   const first = useRef(true);
+  const editorRef = useRef<RichEditorHandle>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const [focusBody, setFocusBody] = useState(false);
   const dirty = body !== page.body || title !== page.title;
+
+  useEffect(() => {
+    if (focusTitle) {
+      titleRef.current?.focus();
+      titleRef.current?.select();
+    }
+  }, [focusTitle]);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 15000);
@@ -78,17 +91,22 @@ export function DocEditor({
     return () => clearTimeout(t);
   }, [body, page.id]);
 
-  const publish = () =>
-    save.mutate(
-      { id: page.id, data: { title, body, draft_body: "" } },
-      {
-        onSuccess: () => {
-          toast("Page saved");
-          onDone();
-        },
-        onError: () => toast("Could not save the page", "error"),
-      },
-    );
+  // Reads the editor's content directly, so a Save right after typing never misses the last words.
+  // Uses the promise (not mutate callbacks): renaming a page changes its address, which unmounts
+  // this editor before callbacks would run.
+  const publish = async () => {
+    const current = (await editorRef.current?.getMarkdown()) ?? body;
+    try {
+      const saved = await save.mutateAsync({
+        id: page.id,
+        data: { title, body: current, draft_body: "" },
+      });
+      toast("Page saved");
+      onDone(saved?.slug as string | undefined);
+    } catch {
+      toast("Could not save the page", "error");
+    }
+  };
   const discard = async () => {
     if (
       dirty &&
@@ -99,7 +117,7 @@ export function DocEditor({
       return;
     save.mutate(
       { id: page.id, data: { draft_body: "" } },
-      { onSuccess: onDone },
+      { onSuccess: () => onDone() },
     );
   };
   const useSaved = () => {
@@ -108,8 +126,54 @@ export function DocEditor({
     setSeed((s) => s + 1);
   };
 
+  // Ctrl/Cmd+S saves, as in most editors.
+  const publishRef = useRef(publish);
+  publishRef.current = publish;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        publishRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <article className="doc-editor">
+      <div className="doc-editor__bar" role="toolbar" aria-label="Editing">
+        <span className="doc-editor__mode">Editing</span>
+        <span className="doc-editor__status" role="status" aria-live="polite">
+          {status === "saving" && "Saving draft…"}
+          {status === "saved" && `Saved · ${ago(savedAt, now)}`}
+          {status === "error" && "Draft not saved. Check your connection."}
+          {status === "idle" && (dirty ? "Unsaved changes" : "No changes")}
+        </span>
+        <button
+          type="button"
+          className="button button--link button--sm"
+          onClick={() => setHist(true)}
+        >
+          History
+        </button>
+        <button
+          type="button"
+          className="button button--link button--sm"
+          onClick={discard}
+        >
+          Discard
+        </button>
+        <button
+          type="button"
+          className="button button--primary button--sm"
+          onClick={publish}
+          disabled={save.isPending}
+          title="Save (Ctrl+S)"
+        >
+          Save
+        </button>
+      </div>
       {hasDraft && useDraft && (
         <div className="alert alert--info margin-bottom--md" role="status">
           Restored your autosaved draft.{" "}
@@ -127,41 +191,30 @@ export function DocEditor({
       </label>
       <input
         id="doc-title"
-        className="field doc-editor__title"
+        ref={titleRef}
+        className="doc-editor__title"
+        placeholder="Untitled"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        onKeyDown={(e) => {
+          // Enter moves from the title into the body, like Notion.
+          if (e.key === "Enter" || e.key === "ArrowDown") {
+            e.preventDefault();
+            // If the editor is still loading, it takes focus as soon as it is ready.
+            if (editorRef.current) editorRef.current.focus();
+            else setFocusBody(true);
+          }
+        }}
       />
-      <RichEditor key={seed} label="Content" value={body} onChange={setBody} />
-      <div className="doc-editor__bar" role="toolbar" aria-label="Editing">
-        <span className="doc-editor__status" role="status" aria-live="polite">
-          {status === "saving" && "Saving draft…"}
-          {status === "saved" && `Saved · ${ago(savedAt, now)}`}
-          {status === "error" && "Draft not saved. Check your connection."}
-          {status === "idle" && (dirty ? "Unsaved changes" : "No changes")}
-        </span>
-        <button
-          type="button"
-          className="button button--secondary"
-          onClick={() => setHist(true)}
-        >
-          History
-        </button>
-        <button
-          type="button"
-          className="button button--secondary"
-          onClick={discard}
-        >
-          Discard
-        </button>
-        <button
-          type="button"
-          className="button button--primary"
-          onClick={publish}
-          disabled={save.isPending}
-        >
-          Save
-        </button>
-      </div>
+      <RichEditor
+        ref={editorRef}
+        key={seed}
+        variant="page"
+        autoFocus={focusBody}
+        label="Content"
+        value={body}
+        onChange={setBody}
+      />
       {hist && (
         <HistoryPanel
           endpoint={endpoint}

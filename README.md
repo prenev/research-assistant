@@ -65,6 +65,12 @@ matrix (Phase 5). Those controls are visible but disabled or absent.
 
 Log in, then use the **pencil** in the navbar to turn on edit mode and **＋** for Quick add.
 
+- **Writing feels like a page, not a text box.** The editor has no frame: you write straight on the
+  page, in the page's own typography, with block handles in the margin. The title is part of the page
+  (Enter drops you into the body), clicking empty space puts the cursor at the end, and **Ctrl/⌘+S**
+  saves. **New doc page** and **New log post** open as a blank page with the cursor in the title, and
+  the page's address follows its title. Notes on papers and rationale/notes on proteins are written in
+  place the same way, with a small Save bar that appears only when something changed.
 - **Docs:** *Edit this page* edits in place with a block editor (type `/` for headings, lists, tables,
   code, images, admonitions, citations and embeds). It autosaves a draft every couple of seconds;
   **Save** publishes, **Discard** reverts. Every item has a **History** panel with a side-by-side

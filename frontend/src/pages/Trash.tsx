@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { api, post } from "../api/client";
+import { refreshAfterWrite } from "../api/crud";
 import { useQuery } from "@tanstack/react-query";
 import { useFeedback } from "../components/Feedback";
 import { PageShell } from "../components/PageShell";
@@ -20,7 +21,7 @@ export function TrashPage() {
   });
   const qc = useQueryClient();
   const { confirm, toast } = useFeedback();
-  const refresh = () => qc.invalidateQueries();
+  const refresh = () => refreshAfterWrite(qc);
   const restore = async (i: TrashItem) => {
     try {
       await post("/trash/", { type: i.type, id: i.id });

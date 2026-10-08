@@ -1,8 +1,15 @@
-import { useState } from "react";
-import { Navigate, useNavigate, useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+  Link,
+} from "react-router-dom";
 import { useDocPage, useMe, useSidebar } from "../api/hooks";
 import { ItemActions } from "../components/ItemActions";
 import { useForms } from "../forms/FormHost";
+import { useNewPage } from "../lib/useNewPage";
 import { useEditMode } from "../theme/EditMode";
 import { DocEditor } from "./DocEditor";
 import type { SidebarCategory, SidebarItem } from "../api/types";
@@ -55,6 +62,20 @@ export function DocPageView() {
   const navigate = useNavigate();
   const [editingPage, setEditingPage] = useState<string | null>(null);
   const isEditingThis = editingPage === slug;
+  const [sp, setSp] = useSearchParams();
+  const [isNew, setIsNew] = useState(false);
+  const { newDocPage } = useNewPage();
+
+  // A brand-new page arrives with ?edit=1: open the editor straight away, cursor in the title.
+  useEffect(() => {
+    if (sp.get("edit") === "1" && page && me?.authenticated) {
+      setEditingPage(slug!);
+      setIsNew(true);
+      const next = new URLSearchParams(sp);
+      next.delete("edit");
+      setSp(next, { replace: true });
+    }
+  }, [page, me?.authenticated]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!sidebar || isLoading)
     return (
       <Layout>
@@ -83,7 +104,9 @@ export function DocPageView() {
       <DocsShell items={sidebar}>
         <div className="container padding-top--md padding-bottom--lg">
           <div className="row">
-            <div className="col doc-item-col">
+            <div
+              className={`col doc-item-col${isEditingThis ? " doc-item-col--editing" : ""}`}
+            >
               <Breadcrumbs trail={flat[i]?.trail ?? []} current={page.title} />
               {editing && !isEditingThis && (
                 <div className="doc-toolbar">
@@ -102,11 +125,7 @@ export function DocPageView() {
                   <button
                     type="button"
                     className="button button--secondary button--sm"
-                    onClick={() =>
-                      openForm("docPage", {
-                        initial: { category: page.category },
-                      })
-                    }
+                    onClick={() => newDocPage(page.category)}
                   >
                     New page here
                   </button>
@@ -120,7 +139,16 @@ export function DocPageView() {
                 </div>
               )}
               {isEditingThis ? (
-                <DocEditor page={page} onDone={() => setEditingPage(null)} />
+                <DocEditor
+                  page={page}
+                  focusTitle={isNew}
+                  onDone={(newSlug) => {
+                    setEditingPage(null);
+                    setIsNew(false);
+                    if (newSlug && newSlug !== slug)
+                      navigate(`/docs/${newSlug}`, { replace: true });
+                  }}
+                />
               ) : (
                 <article>
                   {!hasH1 && (
@@ -170,7 +198,9 @@ export function DocPageView() {
                 next={next && { to: `/docs/${next.slug}`, label: next.title }}
               />
             </div>
-            <div className="col col--3 toc-col">
+            <div
+              className={`col col--3 toc-col${isEditingThis ? " toc-col--editing" : ""}`}
+            >
               <Toc items={toc} />
             </div>
           </div>

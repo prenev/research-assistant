@@ -330,3 +330,40 @@ def test_healthz_and_spa_fallback(anon, tmp_path, settings):
         404,
     )  # API paths are not swallowed
     assert b"app" not in anon.get("/api/v1/me/").content
+
+
+# ---- "Untitled" pages take their address from the title once renamed ----
+def test_untitled_page_address_follows_its_title(client):
+    cat = DocCategory.objects.create(title="C")
+    r = client.post(f"{API}/doc-pages/", {"title": "Untitled", "category": cat.id}, format="json")
+    assert r.json()["slug"] == "untitled"
+    pid = r.json()["id"]
+    r = client.patch(f"{API}/doc-pages/{pid}/", {"title": "My new page"}, format="json")
+    assert r.json()["slug"] == "my-new-page"
+    # renamed again: the address is now a real one and stays put
+    r = client.patch(f"{API}/doc-pages/{pid}/", {"title": "Something else"}, format="json")
+    assert r.json()["slug"] == "my-new-page"
+
+
+def test_untitled_titles_do_not_collide_and_seeded_addresses_never_change(client):
+    cat = DocCategory.objects.create(title="C")
+    a = client.post(
+        f"{API}/doc-pages/", {"title": "Untitled", "category": cat.id}, format="json"
+    ).json()
+    b = client.post(
+        f"{API}/doc-pages/", {"title": "Untitled", "category": cat.id}, format="json"
+    ).json()
+    assert a["slug"] == "untitled" and b["slug"] == "untitled-2"
+    seeded = DocPage.objects.create(title="Reading plan", slug="reading-plan", category=cat)
+    r = client.patch(f"{API}/doc-pages/{seeded.id}/", {"title": "A different title"}, format="json")
+    assert r.json()["slug"] == "reading-plan"
+    # editing the body of an untitled page (no title change) keeps its address
+    r = client.patch(f"{API}/doc-pages/{a['id']}/", {"body": "text"}, format="json")
+    assert r.json()["slug"] == "untitled"
+
+
+def test_untitled_log_post_address_follows_its_title(client):
+    r = client.post(f"{API}/log-posts/", {"title": "Untitled", "date": "2026-03-05"}, format="json")
+    assert r.json()["slug"] == "2026-03-05-untitled"
+    r = client.patch(f"{API}/log-posts/{r.json()['id']}/", {"title": "Journal club"}, format="json")
+    assert r.json()["slug"] == "2026-03-05-journal-club"

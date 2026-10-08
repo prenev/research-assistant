@@ -23,18 +23,18 @@ test("flow 3: write a log post with a viz embed and a citation, publish, and see
   });
   const title = `Flow 3 post ${n}`;
 
+  // "New log post" opens a blank page with the cursor in the title (no form).
   await quickAdd(page, "New log post");
-  const dialog = page.getByRole("dialog", { name: "Add log post" });
-  await dialog.getByLabel("Title").fill(title);
-  await dialog.locator(".bn-editor").click();
+  await expect(page.locator(".doc-editor__title")).toBeFocused();
+  await page.keyboard.type(title);
+  await page.keyboard.press("Enter");
   await page.keyboard.type(`First paragraph cites {{cite:${n}}} as evidence.`);
   await page.keyboard.press("Enter");
   await page.keyboard.type(
     "{{viz:evidence-matrix population=general_population}}",
   );
-  await page.waitForTimeout(700); // editor debounce
-  await dialog.getByRole("button", { name: "Save" }).click();
-  await expect(dialog).toBeHidden();
+  await page.keyboard.press("Control+s");
+  await expect(page.getByText("Page saved")).toBeVisible();
 
   // Stored as shortcodes, exactly as typed (no escaping by the editor).
   const posts = await apiCall(

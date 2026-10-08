@@ -6,6 +6,7 @@ import { useFeedback } from "../components/Feedback";
 import { FilterBar, type FilterDef } from "../components/FilterBar";
 import { ItemActions } from "../components/ItemActions";
 import { Markdown } from "../components/Markdown";
+import { NoteSection } from "../components/NoteSection";
 import { PageShell } from "../components/PageShell";
 import { FTD_SUBTYPES } from "../forms/config";
 import { useForms } from "../forms/FormHost";
@@ -550,12 +551,7 @@ export function PaperPage() {
           source={`:::warning Limitations\n${paper.limitations.map((l: string) => `- ${l}`).join("\n")}\n:::`}
         />
       )}
-      {paper.notes && (
-        <>
-          <h2>Notes</h2>
-          <Markdown source={paper.notes} />
-        </>
-      )}
+      <NoteSection title="Notes" endpoint="papers" item={paper} field="notes" />
       <h2>Findings</h2>
       {editing && (
         <button

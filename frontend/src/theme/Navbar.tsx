@@ -3,7 +3,8 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useLogout, useMe, useSettings, useSidebar } from "../api/hooks";
 import { QUICK_ADD } from "../forms/config";
 import { useForms } from "../forms/FormHost";
-import { DocSidebarMenu } from "./DocSidebar";
+import { useNewPage } from "../lib/useNewPage";
+import { DocSidebarMenu, flattenPages } from "./DocSidebar";
 import { useSearch } from "../components/Search";
 import { useEditMode } from "./EditMode";
 import { NAV_ITEMS } from "./nav";
@@ -45,6 +46,22 @@ export function Navbar() {
   const { editing, toggle: toggleEdit } = useEditMode();
   const { openForm, openImport } = useForms();
   const { open: openSearch } = useSearch();
+  const { newDocPage, newLogPost } = useNewPage();
+  // "New doc page" goes into the section of the page you are reading, if any.
+  const currentCategory = () => {
+    const m = pathname.match(/^\/docs\/([^/]+)$/);
+    const hit =
+      m && sidebar
+        ? flattenPages(sidebar).find((p) => p.slug === m[1])
+        : undefined;
+    return hit?.trail[hit.trail.length - 1]?.id;
+  };
+  const quickAdd = (model: string) =>
+    model === "docPage"
+      ? newDocPage(currentCategory())
+      : model === "logPost"
+        ? newLogPost()
+        : openForm(model);
 
   useEffect(() => {
     setOpen(false);
@@ -162,7 +179,7 @@ export function Navbar() {
                         type="button"
                         role="menuitem"
                         className="dropdown__link clean-btn"
-                        onClick={() => openForm(q.model)}
+                        onClick={() => quickAdd(q.model)}
                       >
                         {q.label}
                       </button>

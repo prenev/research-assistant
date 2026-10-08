@@ -1,9 +1,23 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { api, post } from "./client";
 import type { Page } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Obj = Record<string, any> & { id: number };
+
+/**
+ * After any write, refresh what is on screen, in the background. It deliberately does not wait for
+ * the refresh (so a save reports success straight away) and leaves slow, rarely-changing data such
+ * as Wikipedia background alone.
+ */
+export function refreshAfterWrite(qc: QueryClient) {
+  void qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "wiki" });
+}
 
 const qs = (params?: Record<string, string | number | undefined>) => {
   const p = new URLSearchParams();
@@ -46,7 +60,7 @@ export function useSaveMutation(endpoint: string) {
             body: JSON.stringify(data),
           })
         : post<Obj>(`/${endpoint}/`, data),
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => refreshAfterWrite(qc),
   });
 }
 
@@ -55,7 +69,7 @@ export function useDeleteMutation(endpoint: string) {
   return useMutation({
     mutationFn: (id: number) =>
       api<void>(`/${endpoint}/${id}/`, { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => refreshAfterWrite(qc),
   });
 }
 
@@ -100,7 +114,7 @@ export function useRestore(endpoint: string, id: number) {
   return useMutation({
     mutationFn: (historyId: number) =>
       post<Obj>(`/${endpoint}/${id}/restore/${historyId}/`),
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => refreshAfterWrite(qc),
   });
 }
 

@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type DragEvent } from "react";
 import { api, post } from "../api/client";
-import { useFormMeta, useList, type Obj } from "../api/crud";
+import { refreshAfterWrite, useFormMeta, useList, type Obj } from "../api/crud";
 import { Badge } from "../components/Badge";
 import { useFeedback } from "../components/Feedback";
 import { ItemActions } from "../components/ItemActions";
@@ -33,7 +33,7 @@ export function PipelinePage() {
     } catch {
       toast("Could not save the new order", "error");
     }
-    qc.invalidateQueries();
+    refreshAfterWrite(qc);
   };
   const step = (i: number, d: -1 | 1) => {
     if (!stages) return;
@@ -57,7 +57,7 @@ export function PipelinePage() {
         method: "PATCH",
         body: JSON.stringify({ status }),
       });
-      qc.invalidateQueries();
+      refreshAfterWrite(qc);
     } catch {
       toast("Could not update the status", "error");
     }

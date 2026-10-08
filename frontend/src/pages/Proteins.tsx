@@ -7,7 +7,7 @@ import { ProteinInfoButton, ProteinInfoPanel } from "../components/ProteinInfo";
 import { readParams, sortBy, withParam } from "../lib/params";
 import { Badge, humanise } from "../components/Badge";
 import { ItemActions } from "../components/ItemActions";
-import { Markdown } from "../components/Markdown";
+import { NoteSection } from "../components/NoteSection";
 import { PageShell } from "../components/PageShell";
 import { useForms } from "../forms/FormHost";
 import { useEditMode } from "../theme/EditMode";
@@ -267,18 +267,19 @@ export function ProteinPage() {
           Excluded: {protein.exclusion_reason}
         </div>
       )}
-      {protein.rationale && (
-        <>
-          <h2>Rationale</h2>
-          <Markdown source={protein.rationale} />
-        </>
-      )}
-      {protein.notes && (
-        <>
-          <h2>Notes</h2>
-          <Markdown source={protein.notes} />
-        </>
-      )}
+      <NoteSection
+        title="Rationale"
+        endpoint="proteins"
+        item={protein}
+        field="rationale"
+        placeholder="Why is this protein a candidate? Click here and start typing."
+      />
+      <NoteSection
+        title="Notes"
+        endpoint="proteins"
+        item={protein}
+        field="notes"
+      />
       <h2>About this protein</h2>
       <ProteinInfoPanel protein={protein as never} />
       <h2>Evidence</h2>

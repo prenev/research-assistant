@@ -104,3 +104,19 @@ Deviations from, or interpretations of, `PROMPT.md`.
 34. **Labels come from the API.** Enum values are shown with the API's own labels (so `ftd` reads
     "Frontotemporal dementia"), not a text transformation of the raw value.
 35. **Pages have a `main` landmark** (found while testing) for screen-reader users.
+36. **Editor as a page.** The block editor is borderless, uses the site's own fonts and heading sizes, hangs
+    the block handles in the left margin, and hides the table of contents while you write. The title is a
+    plain large field (Enter moves into the body). In forms (modals) the editor stays a light boxed field,
+    because there it is one field among many.
+37. **"New page" is create-then-edit,** like Notion: it makes an "Untitled" page and opens it, rather than
+    asking for details first. The address (`untitled`) follows the title the first time it is renamed;
+    addresses you or the seed chose are never changed. If you abandon a new page it stays as "Untitled"
+    until you delete it (it goes to the Trash).
+38. **Notes are saved explicitly, not continuously.** Docs and log posts autosave a draft that does not
+    touch version history. Notes on papers and proteins have no draft field, so they use Save/Discard
+    (with a warning if you leave with unsaved changes) to keep history meaningful.
+39. **Save reads the editor directly,** so pressing Save immediately after typing does not lose the last
+    words (the editor otherwise batches changes for 300ms).
+40. **Saves do not wait for a full refresh.** A save used to report success only after every visible
+    list had re-fetched, including the slow Wikipedia lookup. It now reports straight away and refreshes
+    in the background, and Wikipedia data is not refreshed after edits.

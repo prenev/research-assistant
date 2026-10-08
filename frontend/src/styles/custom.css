@@ -859,21 +859,6 @@ button.menu__link {
   font-size: 0.9rem;
 }
 
-/* rich editor */
-.rich-editor {
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: var(--ifm-global-radius);
-  background: var(--ifm-background-color);
-}
-.rich-editor .bn-container {
-  min-height: 12rem;
-}
-.rich-editor__hint {
-  font-size: 0.8rem;
-  color: var(--ifm-color-emphasis-700);
-  padding: 0.4rem 0.75rem;
-  border-top: 1px solid var(--ifm-color-emphasis-200);
-}
 .rich-editor .admonition {
   margin: 0.25rem 0;
   width: 100%;
@@ -911,29 +896,6 @@ button.menu__link {
   background: var(--ifm-background-color);
   color: var(--ifm-font-color-base);
   border: 1px solid var(--ifm-color-emphasis-300);
-}
-.doc-editor__title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-}
-.doc-editor__bar {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0.75rem 0;
-  margin-top: 1rem;
-  background: var(--ifm-background-color);
-  border-top: 1px solid var(--ifm-color-emphasis-200);
-}
-.doc-editor__status {
-  margin-right: auto;
-  color: var(--ifm-color-emphasis-700);
-  font-size: 0.9rem;
 }
 .doc-toolbar {
   display: flex;
@@ -1543,4 +1505,214 @@ a.tag-pill:hover {
   border-top: 0;
   padding-top: 0;
   margin-top: 0;
+}
+
+/* ---- editor: a page you write on, not a text box ---- */
+.rich-editor {
+  position: relative;
+}
+.rich-editor__loading {
+  color: var(--ifm-color-emphasis-600);
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+/* Shared: the editor takes on the site's own typography and background */
+.rich-editor .bn-container[data-color-scheme] {
+  --bn-colors-editor-background: transparent;
+  --bn-colors-editor-text: var(--ifm-font-color-base);
+  --bn-font-family: var(--ifm-font-family-base);
+  background: transparent;
+}
+.rich-editor .bn-editor {
+  background: transparent;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--ifm-font-size-base);
+  line-height: var(--ifm-line-height-base);
+  color: var(--ifm-font-color-base);
+}
+.rich-editor .bn-block-content[data-content-type="heading"] {
+  font-weight: var(--ifm-heading-font-weight);
+  line-height: var(--ifm-heading-line-height);
+  color: var(--ifm-heading-color);
+}
+.rich-editor .bn-block-content[data-content-type="heading"][data-level="1"] {
+  --level: var(--ifm-h1-font-size);
+}
+.rich-editor .bn-block-content[data-content-type="heading"][data-level="2"] {
+  --level: var(--ifm-h2-font-size);
+}
+.rich-editor .bn-block-content[data-content-type="heading"][data-level="3"] {
+  --level: var(--ifm-h3-font-size);
+}
+.rich-editor .bn-inline-content code {
+  background: rgba(127, 127, 127, 0.15);
+  border-radius: 3px;
+  padding: 0 0.25em;
+  font-size: 90%;
+}
+.rich-editor kbd {
+  font-size: 0.75rem;
+  padding: 0 0.3rem;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  border-radius: 4px;
+  background: var(--ifm-color-emphasis-100);
+}
+
+/* Page: no box at all. The block handles hang in the left margin, outside the text. */
+.rich-editor--page {
+  min-height: 55vh;
+  padding-bottom: 6rem;
+  margin-left: -54px;
+  width: calc(100% + 54px);
+  cursor: text;
+}
+.rich-editor--page .bn-editor {
+  padding-inline: 54px 0;
+}
+.rich-editor--page .bn-container {
+  min-height: 40vh;
+}
+.rich-editor--page .rich-editor__hint {
+  margin: 1.5rem 0 0 54px;
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  opacity: 0.8;
+}
+@media (max-width: 700px) {
+  .rich-editor--page {
+    margin-left: 0;
+    width: 100%;
+  }
+  .rich-editor--page .bn-editor {
+    padding-inline: 0.25rem;
+  }
+  .rich-editor--page .rich-editor__hint {
+    margin-left: 0;
+  }
+}
+
+/* Inline (inside forms): a soft field that only shows its edges on focus */
+.rich-editor--inline {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-background-color);
+  transition:
+    border-color var(--ifm-transition-fast),
+    box-shadow var(--ifm-transition-fast);
+}
+.rich-editor--inline:focus-within {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 1px var(--ifm-color-primary);
+}
+.rich-editor--inline .bn-container {
+  min-height: 8rem;
+}
+.rich-editor--inline .bn-editor {
+  padding-inline: 14px;
+  padding-block: 8px;
+}
+
+.rich-editor .admonition {
+  margin: 0.25rem 0;
+  width: 100%;
+}
+
+/* Title: big, plain, part of the page */
+.doc-editor__title {
+  display: block;
+  width: 100%;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--ifm-h1-font-size);
+  font-weight: var(--ifm-heading-font-weight);
+  line-height: var(--ifm-heading-line-height);
+  color: var(--ifm-heading-color);
+}
+.doc-editor__title::placeholder {
+  color: var(--ifm-color-emphasis-400);
+}
+
+/* Slim bar that stays at the top while you write */
+.doc-editor__bar {
+  position: sticky;
+  top: var(--ifm-navbar-height);
+  z-index: 20;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.4rem 0;
+  margin-bottom: 1.25rem;
+  background: var(--ifm-background-color);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+.doc-editor__mode {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ifm-color-primary);
+  font-weight: 700;
+}
+.doc-editor__status {
+  margin-right: auto;
+  margin-left: 0.75rem;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.85rem;
+}
+
+/* While writing, give the page the room: no table of contents, a comfortable measure */
+.doc-item-col--editing {
+  max-width: 52rem !important;
+  margin-inline: auto;
+}
+.toc-col--editing {
+  display: none;
+}
+
+/* Notes edited in place (papers, proteins): same borderless page, just shorter */
+.rich-editor--note {
+  min-height: 6rem;
+  padding-bottom: 0.5rem;
+  margin-left: -54px;
+  width: calc(100% + 54px);
+  cursor: text;
+}
+.rich-editor--note .bn-editor {
+  padding-inline: 54px 0;
+}
+.rich-editor--note .bn-container {
+  min-height: 5rem;
+}
+@media (max-width: 700px) {
+  .rich-editor--note {
+    margin-left: 0;
+    width: 100%;
+  }
+  .rich-editor--note .bn-editor {
+    padding-inline: 0.25rem;
+  }
+}
+.note-section__hint {
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
+}
+.note-bar {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  margin-top: 0.5rem;
+}
+.note-bar span {
+  margin-right: auto;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.85rem;
 }

@@ -1,8 +1,12 @@
+import re
+
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
+
+from .models import unique_slug
 
 
 class NotebookViewSet(viewsets.ModelViewSet):
@@ -13,6 +17,28 @@ class NotebookViewSet(viewsets.ModelViewSet):
     def save_kwargs(self):
         return {}
 
+    # Pages made with "New page" start as "Untitled" with an "untitled" address. When that is
+    # renamed, the address follows the new title (an address you or the seed chose never changes).
+    AUTO_SLUG = re.compile(r"^(\d{4}-\d{2}-\d{2}-)?untitled(-\d+)?$")
+
+    def rename_kwargs(self, serializer):
+        inst = serializer.instance
+        new_title = self.request.data.get("title")
+        if (
+            inst is not None
+            and new_title
+            and new_title != inst.title
+            and hasattr(inst, "slug")
+            and self.AUTO_SLUG.match(inst.slug)
+        ):
+            prefix = (
+                f"{inst.date}-"
+                if hasattr(inst, "date") and inst.__class__.__name__ == "LogPost"
+                else ""
+            )
+            return {"slug": unique_slug(inst, f"{prefix}{new_title}", 220)}
+        return {}
+
     def perform_create(self, serializer):
         serializer.save(**self.save_kwargs())
 
@@ -20,7 +46,7 @@ class NotebookViewSet(viewsets.ModelViewSet):
         # Autosaves touch only the draft; keep them out of version history.
         if set(self.request.data.keys()) <= self.draft_only_fields:
             serializer.instance.skip_history_when_saving = True
-        serializer.save(**self.save_kwargs())
+        serializer.save(**self.save_kwargs(), **self.rename_kwargs(serializer))
 
     def perform_destroy(self, instance):
         instance.delete()  # soft delete
