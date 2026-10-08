@@ -3,6 +3,7 @@ import json
 from unittest import mock
 
 import pytest
+from django.core.management import call_command
 from django.test import override_settings
 from PIL import Image
 
@@ -287,3 +288,45 @@ def test_form_meta_has_choices_and_requires_login(client, anon):
     assert "id" in fields and fields["id"]["read_only"] is True
     assert client.get(f"{API}/form-meta/nope/").status_code == 404
     assert anon.get(f"{API}/form-meta/papers/").status_code == 403
+
+
+# ---- hosting ----
+def test_ensure_owner_creates_once_and_keeps_changed_password(monkeypatch):
+    from django.contrib.auth import get_user_model
+
+    monkeypatch.setenv("OWNER_USERNAME", "me")
+    monkeypatch.setenv("OWNER_PASSWORD", "first-password-123")
+    call_command("ensure_owner")
+    U = get_user_model()
+    u = U.objects.get(username="me")
+    assert u.is_superuser and u.check_password("first-password-123")
+    u.set_password("changed-later-456")
+    u.save()
+    call_command("ensure_owner")  # next deploy must not clobber it
+    u.refresh_from_db()
+    assert u.check_password("changed-later-456")
+    monkeypatch.setenv("OWNER_RESET_PASSWORD", "1")
+    call_command("ensure_owner")
+    u.refresh_from_db()
+    assert u.check_password("first-password-123")
+
+
+def test_ensure_owner_skips_without_env(monkeypatch):
+    from django.contrib.auth import get_user_model
+
+    monkeypatch.delenv("OWNER_USERNAME", raising=False)
+    call_command("ensure_owner")
+    assert not get_user_model().objects.exists()
+
+
+def test_healthz_and_spa_fallback(anon, tmp_path, settings):
+    assert anon.get("/healthz").content == b"ok"
+    (tmp_path / "index.html").write_text("<html>app</html>")
+    settings.FRONTEND_DIST = tmp_path
+    r = anon.get("/docs/some-page")  # a React Router path
+    assert r.status_code == 200 and b"app" in r.content
+    assert anon.get("/api/v1/nope-not-real/").status_code in (
+        403,
+        404,
+    )  # API paths are not swallowed
+    assert b"app" not in anon.get("/api/v1/me/").content

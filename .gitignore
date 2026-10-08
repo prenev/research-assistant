@@ -6,6 +6,7 @@ db.sqlite3
 backend/media/
 backend/staticfiles/
 backups/
+backend/frontend_dist/
 node_modules/
 frontend/dist/
 .pytest_cache/

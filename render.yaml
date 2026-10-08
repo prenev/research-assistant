@@ -1,0 +1,25 @@
+# Render Blueprint: one free web service (Django + built React app). The database is a free Neon Postgres
+# (see DEPLOY.md). Create the service from this file, then fill in the three secrets marked sync: false.
+services:
+  - type: web
+    name: ftd-notebook
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: cd backend && gunicorn config.wsgi --workers 1 --threads 4 --bind 0.0.0.0:$PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false # your Neon connection string
+      - key: OWNER_USERNAME
+        sync: false # the username you will log in with
+      - key: OWNER_PASSWORD
+        sync: false # a long password; used only to create the account the first time

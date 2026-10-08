@@ -57,3 +57,9 @@ Deviations from, or interpretations of, `PROMPT.md`.
     Phase 4, which also adds in-place log editing.
 23. **Uploads** accept JPEG, PNG, GIF and WebP only (validated with Pillow, max 10 MB). SVG is
     rejected because it can carry scripts.
+24. **Hosting: one free service.** Django serves the API, the built React app (via WhiteNoise and a
+    catch-all for client-side routes), `/media/` and the admin, so it fits a single free web service.
+    Neon (not Render) provides Postgres because Render's free database expires after 30 days.
+    Uploaded images are on the host's ephemeral disk and are lost on redeploy (documented in
+    `DEPLOY.md`). The account is created from `OWNER_USERNAME` / `OWNER_PASSWORD` so no shell is needed.
+    The Docker Compose / nginx / nightly-backup setup from Phase 6 is still to do.

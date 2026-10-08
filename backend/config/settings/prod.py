@@ -15,3 +15,21 @@ CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# ---- single-service hosting (e.g. Render): Django serves the API, React app and media ----
+_render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if _render_host:
+    ALLOWED_HOSTS = [*ALLOWED_HOSTS, _render_host]  # noqa: F405
+_render_url = os.environ.get("RENDER_EXTERNAL_URL")
+if _render_url:
+    CSRF_TRUSTED_ORIGINS = [*CSRF_TRUSTED_ORIGINS, _render_url]  # noqa: F405
+
+MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")  # noqa: F405
+FRONTEND_DIST = BASE_DIR / "frontend_dist"  # noqa: F405  (filled by build.sh)
+if FRONTEND_DIST.is_dir():
+    WHITENOISE_ROOT = FRONTEND_DIST
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+SECURE_REDIRECT_EXEMPT = [r"^healthz$"]

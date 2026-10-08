@@ -25,6 +25,8 @@ Full build spec: [`PROMPT.md`](PROMPT.md). Plan: [`PLAN.md`](PLAN.md). Deviation
 | 5. Visualisations | Not started |
 | 6. Production and polish | Not started |
 
+**Hosting for free:** see [`DEPLOY.md`](DEPLOY.md) (Render + Neon, login-only).
+
 ## Quick start (backend)
 
 ```bash
