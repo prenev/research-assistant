@@ -250,3 +250,40 @@ def test_autosave_does_not_pollute_history(client):
     page.refresh_from_db()
     assert (page.body, page.draft_body, page.last_edited_by.username) == ("d3", "", "owner")
     assert len(client.get(f"{API}/doc-pages/{page.id}/history/").json()) == 2
+
+
+# ---- reorder safety ----
+def test_category_cannot_move_into_descendant(client):
+    a = DocCategory.objects.create(title="A")
+    b = DocCategory.objects.create(title="B", parent=a)
+    r = client.post(
+        f"{API}/sidebar/reorder/",
+        {"items": [{"type": "category", "id": a.id, "parent": b.id, "position": 0}]},
+        format="json",
+    )
+    assert r.status_code == 400
+    a.refresh_from_db()
+    assert a.parent_id is None
+
+
+def test_pipeline_reorder(client):
+    from apps.project.models import PipelineStage
+
+    s = [PipelineStage.objects.create(title=f"S{i}", position=i) for i in range(3)]
+    ids = [s[2].id, s[0].id, s[1].id]
+    r = client.post(f"{API}/pipeline-stages/reorder/", {"ids": ids}, format="json")
+    assert r.status_code == 200
+    assert [x["id"] for x in r.json()] == ids
+    assert (
+        client.post(f"{API}/pipeline-stages/reorder/", {"ids": ids[:2]}, format="json").status_code
+        == 400
+    )
+
+
+def test_form_meta_has_choices_and_requires_login(client, anon):
+    fields = client.get(f"{API}/form-meta/papers/").json()["fields"]
+    assert fields["title"]["required"] is True
+    assert {c["value"] for c in fields["design"]["choices"]} >= {"prediction", "cross_sectional"}
+    assert "id" in fields and fields["id"]["read_only"] is True
+    assert client.get(f"{API}/form-meta/nope/").status_code == 404
+    assert anon.get(f"{API}/form-meta/papers/").status_code == 403

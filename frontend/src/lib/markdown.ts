@@ -42,9 +42,15 @@ export function transformEmbeds(text: string): string {
 
 export type Block =
   | { type: "md"; text: string }
-  | { type: "admonition"; kind: string; title: string; body: string }
-  | { type: "details"; title: string; body: string }
-  | { type: "tabs"; tabs: { label: string; body: string }[] };
+  | {
+      type: "admonition";
+      kind: string;
+      title: string;
+      body: string;
+      raw: string;
+    }
+  | { type: "details"; title: string; body: string; raw: string }
+  | { type: "tabs"; tabs: { label: string; body: string }[]; raw: string };
 
 const ADMONITIONS = ["note", "tip", "info", "warning", "danger", "caution"];
 const FENCE = /^(```|~~~)/;
@@ -88,18 +94,20 @@ export function parseBlocks(src: string): Block[] {
         j++;
       }
       const body = lines.slice(i + 1, j).join("\n");
+      const raw = lines.slice(i, Math.min(j + 1, lines.length)).join("\n");
       flush();
       const [, , kind, title] = open;
       if (kind === "details")
-        blocks.push({ type: "details", title: title || "Details", body });
+        blocks.push({ type: "details", title: title || "Details", body, raw });
       else if (kind === "tabs")
-        blocks.push({ type: "tabs", tabs: parseTabs(body) });
+        blocks.push({ type: "tabs", tabs: parseTabs(body), raw });
       else
         blocks.push({
           type: "admonition",
           kind: kind === "caution" ? "warning" : kind,
           title: title.trim() || kind.toUpperCase(),
           body,
+          raw,
         });
       i = j + 1;
       continue;

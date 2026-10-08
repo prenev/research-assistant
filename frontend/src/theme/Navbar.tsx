@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useLogout, useMe, useSettings, useSidebar } from "../api/hooks";
+import { QUICK_ADD } from "../forms/config";
+import { useForms } from "../forms/FormHost";
 import { DocSidebarMenu } from "./DocSidebar";
+import { useEditMode } from "./EditMode";
 import { NAV_ITEMS } from "./nav";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -38,6 +41,8 @@ export function Navbar() {
     !!me && (me.authenticated || !!me.public_read),
   );
   const onDocs = pathname.startsWith("/docs");
+  const { editing, toggle: toggleEdit } = useEditMode();
+  const { openForm, openImport } = useForms();
 
   useEffect(() => {
     setOpen(false);
@@ -135,6 +140,69 @@ export function Navbar() {
             </span>
           </button>
           <ThemeToggle />
+          {me?.authenticated && (
+            <>
+              <div className="navbar__item dropdown dropdown--hoverable dropdown--right">
+                <button
+                  type="button"
+                  className="clean-btn toggle-button"
+                  aria-label="Quick add"
+                  aria-haspopup="menu"
+                  title="Quick add"
+                >
+                  <span aria-hidden="true" className="quick-add__plus">
+                    ＋
+                  </span>
+                </button>
+                <ul className="dropdown__menu" role="menu">
+                  {QUICK_ADD.map((q) => (
+                    <li key={q.model} role="none">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="dropdown__link clean-btn"
+                        onClick={() => openForm(q.model)}
+                      >
+                        {q.label}
+                      </button>
+                    </li>
+                  ))}
+                  <li role="none">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="dropdown__link clean-btn"
+                      onClick={openImport}
+                    >
+                      Import papers…
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <button
+                type="button"
+                className={`clean-btn toggle-button${editing ? " toggle-button--on" : ""}`}
+                aria-pressed={editing}
+                aria-label={
+                  editing ? "Turn edit mode off" : "Turn edit mode on"
+                }
+                title={editing ? "Edit mode: on" : "Edit mode: off"}
+                onClick={toggleEdit}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                  />
+                </svg>
+              </button>
+            </>
+          )}
           {me?.authenticated ? (
             <div className="navbar__item dropdown dropdown--hoverable dropdown--right">
               <a

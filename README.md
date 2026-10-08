@@ -20,7 +20,7 @@ Full build spec: [`PROMPT.md`](PROMPT.md). Plan: [`PLAN.md`](PLAN.md). Deviation
 |---|---|
 | 1. Backend foundation | Done |
 | 2. Docusaurus-style shell | Done (search, edit mode and visualisations come in later phases) |
-| 3. Editing everywhere | Not started |
+| 3. Editing everywhere | Done (see notes below) |
 | 4. Papers, proteins, log | Not started |
 | 5. Visualisations | Not started |
 | 6. Production and polish | Not started |
@@ -58,6 +58,30 @@ embeds. Raw HTML in Markdown is never rendered.
 
 Not yet built: search (Phase 4), edit mode and quick add (Phase 3), the home page's mini evidence
 matrix (Phase 5). Those controls are visible but disabled or absent.
+
+## Editing (Phase 3)
+
+Log in, then use the **pencil** in the navbar to turn on edit mode and **＋** for Quick add.
+
+- **Docs:** *Edit this page* edits in place with a block editor (type `/` for headings, lists, tables,
+  code, images, admonitions, citations and embeds). It autosaves a draft every couple of seconds;
+  **Save** publishes, **Discard** reverts. Every item has a **History** panel with a side-by-side
+  diff and one-click restore. Autosaves do not clutter history.
+- **Papers:** add by DOI (Crossref lookup, review before saving; falls back to manual entry), or
+  import a BibTeX or Zotero CSV export with a preview that flags duplicates.
+  Export BibTeX, an IEEE list ordered by citation number, or a full JSON backup from **Settings**.
+- **Forms** for papers, proteins, findings, decisions, pipeline stages, log posts, doc pages and
+  results. Related items use typeahead with inline *create new*. The results form shows the data
+  policy and requires a confirmation below the minimum event count.
+- **Reordering:** drag sidebar pages and categories, or use the ↑ ↓ buttons. Pipeline stages too.
+- **Delete** always asks first and moves the item to **Trash** (30 days, restorable).
+
+```bash
+make e2e          # Playwright on a throwaway database (start with: cd frontend && npm install)
+```
+
+Not yet in the UI: the Log pages (Phase 4), search (Phase 4), visualisations (Phase 5), the
+pipeline kanban board (Phase 5).
 
 ## Backend notes
 

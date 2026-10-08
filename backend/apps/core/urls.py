@@ -42,6 +42,7 @@ urlpatterns = [
     path("sidebar/", views.SidebarView.as_view()),
     path("sidebar/reorder/", views.SidebarReorderView.as_view()),
     path("search-index/", views.SearchIndexView.as_view()),
+    path("form-meta/<str:prefix>/", views.FormMetaView.as_view()),
     path("trash/", tools.TrashView.as_view()),
     path("uploads/", tools.UploadView.as_view()),
     path("export/json/", tools.ExportJsonView.as_view()),

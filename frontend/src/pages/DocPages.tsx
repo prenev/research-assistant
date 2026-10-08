@@ -1,5 +1,10 @@
-import { Navigate, useParams, Link } from "react-router-dom";
-import { useDocPage, useSidebar } from "../api/hooks";
+import { useState } from "react";
+import { Navigate, useNavigate, useParams, Link } from "react-router-dom";
+import { useDocPage, useMe, useSidebar } from "../api/hooks";
+import { ItemActions } from "../components/ItemActions";
+import { useForms } from "../forms/FormHost";
+import { useEditMode } from "../theme/EditMode";
+import { DocEditor } from "./DocEditor";
 import type { SidebarCategory, SidebarItem } from "../api/types";
 import { Markdown } from "../components/Markdown";
 import { extractToc } from "../lib/markdown";
@@ -44,6 +49,12 @@ export function DocPageView() {
   const { slug } = useParams();
   const { data: sidebar } = useSidebar();
   const { data: page, isError, isLoading } = useDocPage(slug);
+  const { data: me } = useMe();
+  const { editing } = useEditMode();
+  const { openForm } = useForms();
+  const navigate = useNavigate();
+  const [editingPage, setEditingPage] = useState<string | null>(null);
+  const isEditingThis = editingPage === slug;
   if (!sidebar || isLoading)
     return (
       <Layout>
@@ -74,23 +85,64 @@ export function DocPageView() {
           <div className="row">
             <div className="col doc-item-col">
               <Breadcrumbs trail={flat[i]?.trail ?? []} current={page.title} />
-              <article>
-                {!hasH1 && (
-                  <header>
-                    <h1>{page.title}</h1>
-                  </header>
-                )}
-                <Markdown source={page.body} />
-              </article>
+              {editing && !isEditingThis && (
+                <div className="doc-toolbar">
+                  <ItemActions
+                    model="docPage"
+                    item={page}
+                    onDeleted={() => navigate("/docs")}
+                  />
+                  <button
+                    type="button"
+                    className="button button--primary button--sm"
+                    onClick={() => setEditingPage(slug!)}
+                  >
+                    Edit content
+                  </button>
+                  <button
+                    type="button"
+                    className="button button--secondary button--sm"
+                    onClick={() =>
+                      openForm("docPage", {
+                        initial: { category: page.category },
+                      })
+                    }
+                  >
+                    New page here
+                  </button>
+                  <button
+                    type="button"
+                    className="button button--secondary button--sm"
+                    onClick={() => openForm("docCategory")}
+                  >
+                    New category
+                  </button>
+                </div>
+              )}
+              {isEditingThis ? (
+                <DocEditor page={page} onDone={() => setEditingPage(null)} />
+              ) : (
+                <article>
+                  {!hasH1 && (
+                    <header>
+                      <h1>{page.title}</h1>
+                    </header>
+                  )}
+                  <Markdown source={page.body} />
+                </article>
+              )}
               <footer className="doc-footer">
                 <div className="row margin-top--sm">
                   <div className="col">
-                    <span
-                      className="doc-footer__edit"
-                      title="Editing arrives in Phase 3"
-                    >
-                      ✎ Edit this page
-                    </span>
+                    {me?.authenticated && (
+                      <button
+                        type="button"
+                        className="clean-btn doc-footer__edit"
+                        onClick={() => setEditingPage(slug!)}
+                      >
+                        ✎ Edit this page
+                      </button>
+                    )}
                   </div>
                   <div className="col text--right">
                     <em>

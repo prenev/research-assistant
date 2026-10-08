@@ -1,6 +1,23 @@
-import { useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type DragEvent,
+} from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { post } from "../api/client";
 import type { SidebarCategory, SidebarItem } from "../api/types";
+import { useFeedback } from "../components/Feedback";
+import {
+  moveBy,
+  moveNode,
+  reorderPayload,
+  type Ref,
+  type Zone,
+} from "../lib/tree";
+import { useEditMode } from "./EditMode";
 
 export function flattenPages(
   items: SidebarItem[],
@@ -17,6 +34,104 @@ export function flattenPages(
   return out;
 }
 
+interface Reorder {
+  tree: SidebarItem[];
+  editing: boolean;
+  move: (drag: Ref, target: Ref, zone: Zone) => void;
+  step: (ref: Ref, delta: -1 | 1) => void;
+}
+const ReorderCtx = createContext<Reorder | null>(null);
+
+function useReorderState(tree: SidebarItem[]): Reorder {
+  const { editing } = useEditMode();
+  const qc = useQueryClient();
+  const { toast } = useFeedback();
+  const apply = async (next: SidebarItem[] | null, blocked: string) => {
+    if (!next) return toast(blocked, "error");
+    qc.setQueryData(["sidebar"], next); // optimistic
+    try {
+      await post("/sidebar/reorder/", { items: reorderPayload(next) });
+    } catch {
+      toast("Could not save the new order", "error");
+    }
+    qc.invalidateQueries({ queryKey: ["sidebar"] });
+  };
+  return {
+    tree,
+    editing,
+    move: (drag, target, zone) =>
+      apply(moveNode(tree, drag, target, zone), "That move is not allowed."),
+    step: (ref, delta) => {
+      const next = moveBy(tree, ref, delta);
+      if (next) apply(next, "");
+    },
+  };
+}
+
+function EditControls({ r }: { r: Ref }) {
+  const ctx = useContext(ReorderCtx)!;
+  const name = (d: string) => `Move ${r.type} ${d}`;
+  return (
+    <span className="sidebar-edit">
+      <button
+        type="button"
+        className="clean-btn"
+        aria-label={name("up")}
+        title={name("up")}
+        onClick={() => ctx.step(r, -1)}
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        className="clean-btn"
+        aria-label={name("down")}
+        title={name("down")}
+        onClick={() => ctx.step(r, 1)}
+      >
+        ↓
+      </button>
+    </span>
+  );
+}
+
+const DRAG_TYPE = "application/x-notebook-node";
+function dragProps(ctx: Reorder | null, ref: Ref, allowInside: boolean) {
+  if (!ctx?.editing) return {};
+  const zoneOf = (e: DragEvent<HTMLElement>): Zone => {
+    const box = e.currentTarget.getBoundingClientRect();
+    const f = (e.clientY - box.top) / Math.max(box.height, 1);
+    if (allowInside && f > 0.3 && f < 0.7) return "inside";
+    return f < 0.5 ? "before" : "after";
+  };
+  return {
+    draggable: true,
+    onDragStart: (e: DragEvent<HTMLElement>) => {
+      e.stopPropagation();
+      e.dataTransfer.setData(DRAG_TYPE, JSON.stringify(ref));
+      e.dataTransfer.effectAllowed = "move";
+    },
+    onDragOver: (e: DragEvent<HTMLElement>) => {
+      if (!e.dataTransfer.types.includes(DRAG_TYPE)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const el = e.currentTarget;
+      el.dataset.drop = zoneOf(e);
+    },
+    onDragLeave: (e: DragEvent<HTMLElement>) => {
+      delete e.currentTarget.dataset.drop;
+    },
+    onDrop: (e: DragEvent<HTMLElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const zone = zoneOf(e);
+      delete e.currentTarget.dataset.drop;
+      const raw = e.dataTransfer.getData(DRAG_TYPE);
+      if (raw) ctx.move(JSON.parse(raw) as Ref, ref, zone);
+    },
+  };
+}
+
 function containsPath(cat: SidebarCategory, pathname: string): boolean {
   return (
     pathname === `/docs/category/${cat.slug}` ||
@@ -30,11 +145,16 @@ function containsPath(cat: SidebarCategory, pathname: string): boolean {
 
 function Items({ items, depth }: { items: SidebarItem[]; depth: number }) {
   const { pathname } = useLocation();
+  const ctx = useContext(ReorderCtx);
   return (
     <ul className="menu__list">
       {items.map((it) =>
         it.type === "page" ? (
-          <li key={`p${it.id}`} className="menu__list-item">
+          <li
+            key={`p${it.id}`}
+            className="menu__list-item menu__list-item--editable"
+            {...dragProps(ctx, it, false)}
+          >
             <Link
               className={`menu__link${pathname === `/docs/${it.slug}` ? " menu__link--active" : ""}`}
               to={`/docs/${it.slug}`}
@@ -44,6 +164,7 @@ function Items({ items, depth }: { items: SidebarItem[]; depth: number }) {
             >
               {it.title}
             </Link>
+            {ctx?.editing && <EditControls r={it} />}
           </li>
         ) : (
           <Category key={`c${it.id}`} cat={it} depth={depth} />
@@ -55,6 +176,7 @@ function Items({ items, depth }: { items: SidebarItem[]; depth: number }) {
 
 function Category({ cat, depth }: { cat: SidebarCategory; depth: number }) {
   const { pathname } = useLocation();
+  const ctx = useContext(ReorderCtx);
   const active = containsPath(cat, pathname);
   const [expanded, setExpanded] = useState(!cat.collapsed || active);
   useEffect(() => {
@@ -84,6 +206,7 @@ function Category({ cat, depth }: { cat: SidebarCategory; depth: number }) {
           className="clean-btn menu__caret"
           onClick={() => setExpanded((e) => !e)}
         />
+        {ctx?.editing && <EditControls r={cat} />}
       </div>
       {expanded && <Items items={cat.items} depth={depth + 1} />}
     </li>
@@ -91,7 +214,12 @@ function Category({ cat, depth }: { cat: SidebarCategory; depth: number }) {
 }
 
 export function DocSidebarMenu({ items }: { items: SidebarItem[] }) {
-  return <Items items={items} depth={0} />;
+  const state = useReorderState(items);
+  return (
+    <ReorderCtx.Provider value={state}>
+      <Items items={items} depth={0} />
+    </ReorderCtx.Provider>
+  );
 }
 
 export function DocSidebar({ items }: { items: SidebarItem[] }) {

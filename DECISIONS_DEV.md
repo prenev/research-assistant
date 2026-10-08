@@ -37,3 +37,23 @@ Deviations from, or interpretations of, `PROMPT.md`.
     shows the login form instead of per-request 403 errors.
 16. **Primary colour shades** are derived in the browser from `primary_colour` (lightness offsets
     approximating Docusaurus's palette tool), with a lighter variant in dark mode.
+17. **Editor model.** BlockNote stores nothing itself: content is converted to and from Markdown
+    (`frontend/src/editor/convert.ts`). Simple admonitions are editable blocks. Details, tabs and
+    admonitions containing lists or other structure are kept as exact source in a *Raw Markdown
+    block*, so they are never altered. Citations and other embeds are inline chips. Images added in
+    the editor ask for alt text. BlockNote's Mantine peer requires Mantine 8 on React 18.
+18. **Form metadata via GET.** Dropdown choices come from the API (`/form-meta/<endpoint>/`) so enums
+    are defined once. DRF's `OPTIONS` was not used because Vite's dev server answers `OPTIONS` itself.
+19. **Autosave never touches the published body or history.** It writes only `draft_body`, and those
+    saves skip version history.
+20. **Phase 3 pages are deliberately minimal.** Papers, proteins, decisions and pipeline have simple
+    list and detail pages so everything is editable now. Phase 4 and 5 rebuild them with filters,
+    cards, charts and the kanban board.
+21. **Flow 1 is completed in stages.** Phase 3 covers add paper by DOI, link two proteins through
+    findings (one created inline), and checking the Papers and Protein pages without a reload.
+    The Evidence Matrix and Network checks need Phase 5 and will be added then. Crossref is mocked
+    in the test because it is not reachable from the test environment.
+22. **Log posts** can be created and edited through forms now, but have no reading pages until
+    Phase 4, which also adds in-place log editing.
+23. **Uploads** accept JPEG, PNG, GIF and WebP only (validated with Pillow, max 10 MB). SVG is
+    rejected because it can carry scripts.

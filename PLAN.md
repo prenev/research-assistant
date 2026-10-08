@@ -13,7 +13,7 @@ docs three-column layout driven by `/sidebar/`, breadcrumbs, TOC with scrollspy,
 doc cards, markdown renderer (admonitions, code blocks, tabs, details, embeds), home hero.
 Compare against a default Docusaurus 3 site.
 
-## Phase 3: Editing everywhere
+## Phase 3: Editing everywhere (done)
 Login, edit mode, BlockNote with Markdown round trip and embed pickers, autosave to `draft_body`,
 history panel with diff and restore, structured forms, Quick add, DOI lookup (Crossref), BibTeX and
 Zotero import, exports, drag-and-drop ordering, Trash page. Backend: the deferred endpoints.

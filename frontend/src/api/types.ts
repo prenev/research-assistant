@@ -38,6 +38,8 @@ export interface DocPage {
   category: number;
   category_slug: string;
   body: string;
+  draft_body: string;
+  has_draft: boolean;
   description: string;
   updated_at: string;
   last_edited_by_name: string | null;

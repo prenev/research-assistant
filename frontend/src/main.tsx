@@ -6,6 +6,9 @@ import "infima/dist/css/default/default.css";
 import { api } from "./api/client";
 import { App } from "./App";
 import "./styles/custom.css";
+import { FeedbackProvider } from "./components/Feedback";
+import { FormHost } from "./forms/FormHost";
+import { EditModeProvider } from "./theme/EditMode";
 import { ThemeProvider } from "./theme/ThemeContext";
 
 const client = new QueryClient({
@@ -20,7 +23,13 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={client}>
       <ThemeProvider>
         <BrowserRouter>
-          <App />
+          <FeedbackProvider>
+            <EditModeProvider>
+              <FormHost>
+                <App />
+              </FormHost>
+            </EditModeProvider>
+          </FeedbackProvider>
         </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>

@@ -186,6 +186,21 @@ class SidebarReorderView(APIView):
                     {"detail": "Category cannot be its own parent."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+        # Reject cycles: apply the proposed parents on top of the current tree and walk up.
+        parents = dict(DocCategory.objects.values_list("pk", "parent_id"))
+        for it in items:
+            if it["type"] == "category":
+                parents[it["id"]] = it.get("parent")
+        for cid in parents:
+            seen, node = set(), cid
+            while node is not None:
+                if node in seen:
+                    return Response(
+                        {"detail": "A category cannot be moved inside itself."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                seen.add(node)
+                node = parents.get(node)
         with transaction.atomic():
             for it in items:
                 if it["type"] == "page":
@@ -255,3 +270,29 @@ class SearchIndexView(APIView):
                 }
             )
         return Response(out)
+
+
+class FormMetaView(APIView):
+    """Field metadata (types, choices, required) for a model's create form.
+
+    Same data DRF serves for OPTIONS, as a plain GET (some dev proxies answer OPTIONS themselves).
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, prefix):
+        from django.http import Http404
+        from rest_framework.metadata import SimpleMetadata
+
+        from .urls import router
+
+        viewset = next((v for p, v, _ in router.registry if p == prefix), None)
+        if viewset is None:
+            raise Http404
+        view = viewset()
+        view.request, view.args, view.kwargs, view.format_kwarg = request, (), {}, None
+        view.action = "create"
+        view.action_map = {"post": "create"}
+        view.post = view.create  # lets DRF see POST as an allowed method
+        meta = SimpleMetadata().determine_metadata(request, view)
+        return Response({"fields": meta.get("actions", {}).get("POST", {})})

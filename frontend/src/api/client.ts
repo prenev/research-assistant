@@ -19,7 +19,11 @@ function cookie(name: string): string {
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const method = (init.method ?? "GET").toUpperCase();
   const headers = new Headers(init.headers);
-  if (init.body && !headers.has("Content-Type"))
+  if (
+    init.body &&
+    !(init.body instanceof FormData) &&
+    !headers.has("Content-Type")
+  )
     headers.set("Content-Type", "application/json");
   if (method !== "GET")
     headers.set("X-CSRFToken", decodeURIComponent(cookie("csrftoken")));
