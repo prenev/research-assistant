@@ -4,6 +4,7 @@ import { useLogout, useMe, useSettings, useSidebar } from "../api/hooks";
 import { QUICK_ADD } from "../forms/config";
 import { useForms } from "../forms/FormHost";
 import { DocSidebarMenu } from "./DocSidebar";
+import { useSearch } from "../components/Search";
 import { useEditMode } from "./EditMode";
 import { NAV_ITEMS } from "./nav";
 import { ThemeToggle } from "./ThemeToggle";
@@ -43,6 +44,7 @@ export function Navbar() {
   const onDocs = pathname.startsWith("/docs");
   const { editing, toggle: toggleEdit } = useEditMode();
   const { openForm, openImport } = useForms();
+  const { open: openSearch } = useSearch();
 
   useEffect(() => {
     setOpen(false);
@@ -120,9 +122,8 @@ export function Navbar() {
           <button
             type="button"
             className="search-button"
-            aria-label="Search (coming soon)"
-            disabled
-            title="Search arrives in Phase 4"
+            aria-label="Search"
+            onClick={openSearch}
           >
             <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
               <path

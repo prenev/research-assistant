@@ -4,6 +4,13 @@ import { DocCategoryView, DocPageView, DocsIndex } from "./pages/DocPages";
 import { Home } from "./pages/Home";
 import { DecisionsPage } from "./pages/Decisions";
 import { Login, NotFound, Placeholder } from "./pages/Misc";
+import {
+  LogArchivePage,
+  LogListPage,
+  LogPostPage,
+  LogTagPage,
+  LogTagsPage,
+} from "./pages/Log";
 import { PaperPage, PapersPage } from "./pages/Papers";
 import { PipelinePage } from "./pages/Pipeline";
 import { ProteinPage, ProteinsPage } from "./pages/Proteins";
@@ -30,7 +37,11 @@ export function App() {
       <Route path="/pipeline" element={<PipelinePage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/trash" element={<TrashPage />} />
-      <Route path="/log/*" element={<Placeholder title="Log" phase={4} />} />
+      <Route path="/log" element={<LogListPage />} />
+      <Route path="/log/tags" element={<LogTagsPage />} />
+      <Route path="/log/tags/:slug" element={<LogTagPage />} />
+      <Route path="/log/archive" element={<LogArchivePage />} />
+      <Route path="/log/:slug" element={<LogPostPage />} />
       <Route
         path="/visualise/*"
         element={<Placeholder title="Visualise" phase={5} />}

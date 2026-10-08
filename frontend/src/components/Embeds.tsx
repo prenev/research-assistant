@@ -68,14 +68,28 @@ function PaperEmbed({ slug }: { slug: string }) {
   );
 }
 
-function ProteinEmbed({ slug }: { slug: string }) {
+export function ProteinChip({ slug, label }: { slug: string; label?: string }) {
   const { data } = useProteins();
   const p = data?.find((x) => x.slug === slug);
   return (
-    <Link className="badge badge--info chip" to={`/proteins/${slug}`}>
-      {p?.name ?? slug}
-    </Link>
+    <span className="hovercard-wrap">
+      <Link className="badge badge--info chip" to={`/proteins/${slug}`}>
+        {label ?? p?.name ?? slug}
+      </Link>
+      {p && (
+        <span className="hovercard" role="tooltip">
+          <strong>{p.name}</strong>
+          <span className="hovercard__meta">
+            {p.category.replace(/_/g, " ")} · {p.role.replace(/_/g, " ")}
+          </span>
+        </span>
+      )}
+    </span>
   );
+}
+
+function ProteinEmbed({ slug }: { slug: string }) {
+  return <ProteinChip slug={slug} />;
 }
 
 function VizEmbed({ arg }: { arg: string }) {

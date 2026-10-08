@@ -7,7 +7,7 @@ mkdir -p "$RUN"
 case "$1" in
 start)
   rm -f "$RUN/db.sqlite3"
-  export DATABASE_URL="sqlite:///$RUN/db.sqlite3" MEDIA_ROOT="$RUN/media"
+  export DATABASE_URL="sqlite:///$RUN/db.sqlite3" MEDIA_ROOT="$RUN/media" LOGIN_RATE=1000/min  # tests log in often
   ( cd "$ROOT/backend" && "$ROOT/.venv/bin/python" manage.py migrate -v0 && "$ROOT/.venv/bin/python" manage.py seed >/dev/null \
     && "$ROOT/.venv/bin/python" manage.py shell -c "from django.contrib.auth import get_user_model as g; g().objects.create_superuser('owner','o@x.io','pw-12345-long')" >/dev/null 2>&1 )
   ( cd "$ROOT/backend" && setsid "$ROOT/.venv/bin/python" manage.py runserver 8000 --noreload >"$RUN/dj.log" 2>&1 & echo $! >"$RUN/dj.pid" )

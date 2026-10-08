@@ -21,7 +21,7 @@ Full build spec: [`PROMPT.md`](PROMPT.md). Plan: [`PLAN.md`](PLAN.md). Deviation
 | 1. Backend foundation | Done |
 | 2. Docusaurus-style shell | Done (search, edit mode and visualisations come in later phases) |
 | 3. Editing everywhere | Done (see notes below) |
-| 4. Papers, proteins, log | Not started |
+| 4. Papers, proteins, log | Done |
 | 5. Visualisations | Not started |
 | 6. Production and polish | Not started |
 
@@ -84,6 +84,24 @@ make e2e          # Playwright on a throwaway database (start with: cd frontend 
 
 Not yet in the UI: the Log pages (Phase 4), search (Phase 4), visualisations (Phase 5), the
 pipeline kanban board (Phase 5).
+
+## Papers, proteins, log and search (Phase 4)
+
+- **Papers:** filter by population, design, status, review section, fluid, protein, tag, year and text.
+  Filters live in the URL, so a filtered view can be bookmarked. Table or card view, sortable columns.
+  Each paper page shows the IEEE reference (with copy), metadata, key finding, limitations, findings,
+  requirement assessments and linked log posts.
+- **Proteins:** filterable list and a profile page with charts of findings by direction and population,
+  the evidence table, linked log posts and any decision that mentions the protein.
+- **About a protein (Wikipedia):** tap **ⓘ Info** on a protein (or open its profile) to read the
+  Wikipedia article's summary, sections and images inside the app, with an image viewer. Nothing sends
+  you to Wikipedia. The server fetches it with the Wikipedia-API package and caches it for a day. If the
+  automatic match is wrong, set **Wikipedia article title** when editing the protein. Text is CC BY-SA
+  4.0, so attribution is shown.
+- **Log:** Docusaurus-style blog with *Recent posts*, pagination, tags, archive, reading time, a
+  `<!-- truncate -->` cut-off, linked papers/proteins/stages, and newer/older links. Edit posts in place.
+- **Search:** press **Ctrl K** / **⌘ K**. Results are grouped (Docs, Papers, Proteins, Log, Decisions),
+  highlighted, and include anything you saved a moment ago.
 
 ## Backend notes
 

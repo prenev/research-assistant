@@ -166,8 +166,12 @@ export function FormModal({
       if (
         ["number", "decimal", "date", "relation"].includes(kind) &&
         (v === "" || v === undefined)
-      )
+      ) {
+        // A blank optional field on a new item is left out so the API default applies (e.g. today's
+        // date for a log post). Clearing a field on an existing item sends null.
+        if (!id && !meta?.[f.name]?.required) continue;
         v = null;
+      }
       if (kind === "relation" && f.relation?.multiple && !v) v = [];
       if (v !== undefined) data[f.name] = v;
     }

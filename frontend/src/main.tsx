@@ -7,6 +7,7 @@ import { api } from "./api/client";
 import { App } from "./App";
 import "./styles/custom.css";
 import { FeedbackProvider } from "./components/Feedback";
+import { SearchProvider } from "./components/Search";
 import { FormHost } from "./forms/FormHost";
 import { EditModeProvider } from "./theme/EditMode";
 import { ThemeProvider } from "./theme/ThemeContext";
@@ -26,7 +27,9 @@ createRoot(document.getElementById("root")!).render(
           <FeedbackProvider>
             <EditModeProvider>
               <FormHost>
-                <App />
+                <SearchProvider>
+                  <App />
+                </SearchProvider>
               </FormHost>
             </EditModeProvider>
           </FeedbackProvider>

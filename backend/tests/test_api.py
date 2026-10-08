@@ -94,6 +94,7 @@ def test_finding_filters_and_counts(client):
     Finding.objects.create(paper=p, protein=il6, direction="raised", context="ftd_vs_other_disease")
     r = client.get(f"{API}/findings/?protein=il-6&direction=raised").json()["results"]
     assert len(r) == 1 and r[0]["paper_label"] == "Smith 2024"
+    assert r[0]["paper_slug"] == "smith-2024" and r[0]["paper_population"] == "other"
     assert client.get(f"{API}/proteins/?slug=il-6").json()["results"][0]["finding_count"] == 1
 
 
@@ -263,3 +264,14 @@ def test_openapi_lists_endpoints(client):
     assert r.status_code == 200
     for frag in ("papers", "proteins", "findings", "doc-pages", "log-posts", "results", "sidebar"):
         assert frag in r.content.decode()
+
+
+def test_greek_letters_are_spelled_out_in_slugs(client):
+    for name, slug in [
+        ("TNF-α", "tnf-alpha"),
+        ("IL-1α", "il-1-alpha"),
+        ("IL-1β", "il-1-beta"),
+        ("TGF-β1", "tgf-beta-1"),
+    ]:
+        r = client.post(f"{API}/proteins/", {"name": name}, format="json")
+        assert r.status_code == 201 and r.json()["slug"] == slug, (name, r.json())

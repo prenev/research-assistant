@@ -19,7 +19,7 @@ history panel with diff and restore, structured forms, Quick add, DOI lookup (Cr
 Zotero import, exports, drag-and-drop ordering, Trash page. Backend: the deferred endpoints.
 Playwright flows 1–2.
 
-## Phase 4: Papers, proteins and log
+## Phase 4: Papers, proteins and log (done)
 Paper list (table and cards), paper and protein pages, blog-style log with tags and archive,
 Ctrl-K search with Fuse.js. Playwright flow 3.
 

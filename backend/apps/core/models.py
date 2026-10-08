@@ -45,10 +45,23 @@ class BaseModel(models.Model):
         self.save(update_fields=["deleted_at", "updated_at"])
 
 
+GREEK = {
+    "α": "alpha", "β": "beta", "γ": "gamma", "δ": "delta", "ε": "epsilon", "κ": "kappa",
+    "λ": "lambda", "μ": "mu", "ω": "omega",
+}  # fmt: skip
+
+
+def slug_base(text):
+    """Slug text with Greek letters spelled out, so 'TNF-α' becomes 'tnf-alpha', not 'tnf'."""
+    for ch, name in GREEK.items():
+        text = text.replace(ch, f"-{name}-").replace(ch.upper(), f"-{name}-")
+    return slugify(text)
+
+
 def unique_slug(instance, base, max_length=200):
     """Generate a slug from `base`, unique among all rows (including trashed) of the model."""
     model = type(instance)
-    root = slugify(base)[: max_length - 8] or "item"
+    root = slug_base(base)[: max_length - 8] or "item"
     slug, n = root, 2
     qs = model.all_objects.exclude(pk=instance.pk)
     while qs.filter(slug=slug).exists():

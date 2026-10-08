@@ -63,3 +63,20 @@ Deviations from, or interpretations of, `PROMPT.md`.
     Uploaded images are on the host's ephemeral disk and are lost on redeploy (documented in
     `DEPLOY.md`). The account is created from `OWNER_USERNAME` / `OWNER_PASSWORD` so no shell is needed.
     The Docker Compose / nginx / nightly-backup setup from Phase 6 is still to do.
+25. **Protein background from Wikipedia.** Added at your request. The backend uses the Wikipedia-API
+    package (search, page summary and sections, image list and info) and returns plain data, so the
+    app shows it in its own view and the browser never contacts Wikipedia. Results are cached 24 hours;
+    a failure is reported but not cached. Images are the Wikimedia thumbnail sizes, not full originals,
+    and obvious icons and logos are filtered out. The text is CC BY-SA 4.0, so an attribution line and a
+    small *Source article* link are shown. The link opens only if clicked. **Not tested against the live
+    site**, because Wikipedia is not reachable from the build environment: tests use a fake client.
+26. **Slugs spell out Greek letters** (`TNF-α` becomes `tnf-alpha`, `IL-1α` becomes `il-1-alpha`),
+    matching your spec's example. Without it `TNF-α` became `tnf` and `IL-1α` and `IL-1β` would clash.
+    Existing rows keep their current slug.
+27. **Protein "decisions" link** is by name mention. A decision has no protein field in your data model,
+    so the profile lists decisions whose text mentions the protein or an alias.
+28. **Charts on the protein page are plain CSS bars** with printed values, not Recharts. Phase 5 uses
+    D3 and Recharts for the real visualisations.
+29. **Blank optional fields are omitted on create**, so API defaults apply (a new log post is dated
+    today). This fixed a bug found by the Phase 4 tests.
+30. **E2E login limit.** The test environment raises the login rate limit; production keeps 10/min.

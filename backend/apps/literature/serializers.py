@@ -40,6 +40,9 @@ class PaperSerializer(serializers.ModelSerializer):
 
 class FindingSerializer(serializers.ModelSerializer):
     paper_label = serializers.CharField(source="paper.short_label", read_only=True)
+    paper_slug = serializers.CharField(source="paper.slug", read_only=True)
+    paper_population = serializers.CharField(source="paper.population", read_only=True)
+    paper_design = serializers.CharField(source="paper.design", read_only=True)
     protein_name = serializers.CharField(source="protein.name", read_only=True)
     protein_slug = serializers.CharField(source="protein.slug", read_only=True)
 

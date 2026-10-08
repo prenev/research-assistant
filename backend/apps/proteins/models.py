@@ -34,6 +34,11 @@ class Protein(BaseModel):
     role = models.CharField(
         max_length=20, choices=ProteinRole.choices, default=ProteinRole.CANDIDATE
     )
+    wikipedia_title = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Optional. Exact Wikipedia article title; leave blank to find it automatically.",
+    )
     rationale = models.TextField(blank=True)
     exclusion_reason = models.CharField(max_length=200, blank=True)
     notes = models.TextField(blank=True)

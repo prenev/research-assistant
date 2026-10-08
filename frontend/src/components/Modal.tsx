@@ -1,5 +1,8 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
+// Open modals, innermost last. Only the top one reacts to Esc and Tab.
+const stack: symbol[] = [];
+
 /** Accessible modal: Esc closes, focus moves in and returns, Tab is trapped. */
 export function Modal({
   title,
@@ -16,6 +19,8 @@ export function Modal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const me = Symbol("modal");
+    stack.push(me);
     const prev = document.activeElement as HTMLElement | null;
     const focusable = () =>
       Array.from(
@@ -29,6 +34,7 @@ export function Modal({
       focusable()[0]
     )?.focus();
     const onKey = (e: KeyboardEvent) => {
+      if (stack[stack.length - 1] !== me) return;
       if (e.key === "Escape") {
         e.stopPropagation();
         onClose();
@@ -49,6 +55,7 @@ export function Modal({
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
+      stack.splice(stack.indexOf(me), 1);
       prev?.focus?.();
     };
   }, [onClose]);

@@ -136,6 +136,11 @@ export const MODELS: Record<string, ModelConfig> = {
       { name: "category" },
       { name: "on_olink_panel", label: "On Olink panel" },
       { name: "role" },
+      {
+        name: "wikipedia_title",
+        label: "Wikipedia article title",
+        help: "Optional. Exact article title for the background view; blank finds it automatically.",
+      },
       { name: "exclusion_reason", label: "Exclusion reason" },
       { name: "rationale", kind: "markdown", wide: true },
       { name: "notes", kind: "markdown", wide: true },

@@ -33,6 +33,11 @@ Later deploys happen automatically when you push to the chosen branch.
 - Neon's free database has 0.5 GB of storage, which is plenty for notes and literature.
 - Free instances have a monthly hour allowance (750 h). One always-sleepy site fits easily.
 
+## Protein background (Wikipedia)
+The server fetches protein articles from Wikipedia, which the free hosts allow (outbound web access).
+The first view of each protein takes a second or two; later views come from a one-day cache. The cache
+is in memory, so it resets when the free instance restarts.
+
 ## Changing the password later
 Log in at `/admin/`, open *Users*, and change it. It will **not** be overwritten on the next deploy.
 To force-reset from the environment instead, set `OWNER_RESET_PASSWORD=1` with a new `OWNER_PASSWORD`,
