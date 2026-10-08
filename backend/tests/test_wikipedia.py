@@ -79,6 +79,14 @@ def test_thumb_url_uses_wikimedia_thumb_path():
     assert wiki.thumb_url(
         "https://upload.wikimedia.org/wikipedia/commons/c/cd/Fig.svg", 300
     ).endswith("/300px-Fig.svg.png")
+    # a raster image no wider than the request is served as is: Wikimedia will not upscale it
+    small = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Small.png"
+    assert wiki.thumb_url(small, 480, source_width=300) == small
+    assert wiki.thumb_url(small, 480, source_width=480) == small
+    assert "/thumb/" in wiki.thumb_url(small, 480, source_width=481)
+    assert "/thumb/" in wiki.thumb_url(small, 480)  # width unknown: ask for the resized copy
+    svg = "https://upload.wikimedia.org/wikipedia/commons/c/cd/Fig.svg"
+    assert "/thumb/" in wiki.thumb_url(svg, 480, source_width=100)  # vectors scale freely
     already = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/X.jpg/200px-X.jpg"
     assert wiki.thumb_url(already) == already
     assert wiki.thumb_url("https://example.org/x.jpg") == "https://example.org/x.jpg"
@@ -161,7 +169,15 @@ def test_images_are_filtered_and_resized(fake):
     assert [i["caption"] for i in out] == ["Structure of P", "Pathway"]
     assert out[0]["thumb"].endswith("/480px-Structure_of_P.png") and "/thumb/" in out[0]["thumb"]
     assert out[1]["thumb"].endswith("/480px-Pathway.svg.png")
-    assert out[0]["full"].endswith("/1200px-Structure_of_P.png")
+    assert out[0]["full"] == out[0]["original"]  # 600px wide: cannot be enlarged to 1200
+    assert out[0]["original"].endswith("/b/bc/Structure_of_P.png")
+
+
+def test_small_images_use_the_original_not_a_failing_thumbnail(fake):
+    client = fake(FakeClient([FakePage("P")], images=[img("PDB_1ABC.png", "image/png", width=300)]))
+    [i] = wiki.images_of(client, FakePage("P"))
+    assert i["thumb"] == i["full"] == i["original"]
+    assert "/thumb/" not in i["thumb"]
 
 
 # ---- endpoint ----

@@ -80,3 +80,8 @@ Deviations from, or interpretations of, `PROMPT.md`.
 29. **Blank optional fields are omitted on create**, so API defaults apply (a new log post is dated
     today). This fixed a bug found by the Phase 4 tests.
 30. **E2E login limit.** The test environment raises the login rate limit; production keeps 10/min.
+31. **Wikipedia images: never broken.** Wikimedia will not scale a raster image up, so asking for a
+    480px thumbnail of a smaller picture (common for protein structure images) failed. The server now
+    asks for a size the image supports and returns the original when it is already small, plus an
+    `original` URL. In the browser an image that fails tries the original, and if that fails too it is
+    removed from the view instead of showing a broken icon.

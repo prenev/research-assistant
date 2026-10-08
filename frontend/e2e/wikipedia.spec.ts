@@ -160,3 +160,58 @@ test("the Wikipedia title can be set from the protein form", async ({
   );
   expect(res.results[0].wikipedia_title).toBe("Neurofilament light chain");
 });
+
+test("a failing thumbnail falls back to the original, and a dead image is dropped, not shown broken", async ({
+  page,
+}) => {
+  const okSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='100'><rect width='200' height='100' fill='#9c9'/></svg>`;
+  await page.route("https://img.test/**", (route) => {
+    const url = route.request().url();
+    if (url.endsWith("/good.svg"))
+      return route.fulfill({ contentType: "image/svg+xml", body: okSvg });
+    return route.fulfill({ status: 404, body: "not found" }); // thumbnails and the dead image
+  });
+  const img = (name: string, original: string) => ({
+    title: `File:${name}`,
+    caption: name,
+    thumb: `https://img.test/thumb/${name}`,
+    full: `https://img.test/thumb/${name}`,
+    original,
+  });
+  await page.route("**/api/v1/proteins/*/wikipedia/", (route) =>
+    route.fulfill({
+      json: {
+        ...ARTICLE,
+        images: [
+          img("Recovered", "https://img.test/good.svg"),
+          img("Dead", "https://img.test/dead.svg"),
+        ],
+      },
+    }),
+  );
+  await login(page);
+  await page.goto("/proteins/c1q");
+  await expect(
+    page.getByRole("heading", { name: "Tumor necrosis factor" }),
+  ).toBeVisible();
+  const recovered = page.locator(".wiki img[alt='Recovered']").first();
+  await expect(recovered).toHaveAttribute("src", "https://img.test/good.svg"); // fell back to the original
+  await expect
+    .poll(() =>
+      recovered.evaluate(
+        (el: HTMLImageElement) => el.complete && el.naturalWidth > 0,
+      ),
+    )
+    .toBe(true);
+  await expect(page.locator(".wiki img[alt='Dead']")).toHaveCount(0); // dropped, no broken icon
+  // nothing on the page is a broken image
+  const broken = await page.evaluate(
+    () =>
+      [...document.querySelectorAll(".wiki img")].filter(
+        (i) =>
+          (i as HTMLImageElement).complete &&
+          (i as HTMLImageElement).naturalWidth === 0,
+      ).length,
+  );
+  expect(broken).toBe(0);
+});

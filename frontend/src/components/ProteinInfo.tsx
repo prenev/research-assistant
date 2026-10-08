@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, type ImgHTMLAttributes } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useForms } from "../forms/FormHost";
@@ -11,6 +11,7 @@ export interface WikiImage {
   caption: string;
   thumb: string;
   full: string;
+  original: string;
 }
 export interface WikiArticle {
   found: boolean;
@@ -32,6 +33,40 @@ const paragraphs = (t: string) =>
     .split(/\n{2,}|\n/)
     .map((s) => s.trim())
     .filter(Boolean);
+
+/**
+ * An image that never shows as a broken icon. If the resized copy fails it tries the original, and
+ * if that fails too it renders nothing (the caption and the rest of the view remain).
+ */
+function WikiImg({
+  image,
+  size,
+  onDead,
+  ...rest
+}: { image: WikiImage; size: "thumb" | "full"; onDead?: () => void } & Omit<
+  ImgHTMLAttributes<HTMLImageElement>,
+  "src" | "alt"
+>) {
+  const [stage, setStage] = useState<0 | 1 | 2>(0);
+  if (stage === 2) return null;
+  const src = stage === 0 ? image[size] : image.original;
+  return (
+    <img
+      {...rest}
+      src={src}
+      alt={image.caption}
+      referrerPolicy="no-referrer"
+      onError={() => {
+        if (stage === 0 && image.original && image.original !== image[size])
+          setStage(1);
+        else {
+          setStage(2);
+          onDead?.();
+        }
+      }}
+    />
+  );
+}
 
 function Lightbox({
   images,
@@ -56,7 +91,7 @@ function Lightbox({
           if (e.key === "ArrowLeft") step(-1);
         }}
       >
-        <img src={img.full} alt={img.caption} />
+        <WikiImg key={img.title} image={img} size="full" />
         <figcaption>
           {img.caption}{" "}
           <small>
@@ -96,6 +131,8 @@ export function ProteinInfoPanel({ protein }: { protein: ProteinRef }) {
   const { editing } = useEditMode();
   const { openForm } = useForms();
   const [shot, setShot] = useState<number | null>(null);
+  const [dead, setDead] = useState<Set<string>>(new Set());
+  const markDead = (title: string) => setDead((d) => new Set(d).add(title));
 
   if (isLoading)
     return (
@@ -138,7 +175,7 @@ export function ProteinInfoPanel({ protein }: { protein: ProteinRef }) {
       </div>
     );
 
-  const images = data.images ?? [];
+  const images = (data.images ?? []).filter((im) => !dead.has(im.title));
   const intro = paragraphs(data.summary ?? "");
   return (
     <div className="wiki">
@@ -159,7 +196,12 @@ export function ProteinInfoPanel({ protein }: { protein: ProteinRef }) {
             onClick={() => setShot(0)}
             aria-label={`Enlarge image: ${images[0].caption}`}
           >
-            <img src={images[0].thumb} alt={images[0].caption} loading="lazy" />
+            <WikiImg
+              image={images[0]}
+              size="thumb"
+              loading="lazy"
+              onDead={() => markDead(images[0].title)}
+            />
             <span>{images[0].caption}</span>
           </button>
         )}
@@ -179,7 +221,12 @@ export function ProteinInfoPanel({ protein }: { protein: ProteinRef }) {
                   onClick={() => setShot(i)}
                   aria-label={`Enlarge image: ${im.caption}`}
                 >
-                  <img src={im.thumb} alt={im.caption} loading="lazy" />
+                  <WikiImg
+                    image={im}
+                    size="thumb"
+                    loading="lazy"
+                    onDead={() => markDead(im.title)}
+                  />
                 </button>
               </li>
             ))}

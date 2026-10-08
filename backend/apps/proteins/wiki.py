@@ -32,8 +32,12 @@ def get_client() -> wikipediaapi.Wikipedia:
     return wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="en")
 
 
-def thumb_url(url: str, width: int = 480) -> str:
-    """Wikimedia serves resized copies under /thumb/. Avoids loading multi-megabyte originals."""
+def thumb_url(url: str, width: int = 480, source_width: int = 0) -> str:
+    """Wikimedia serves resized copies under /thumb/, which avoids loading multi-megabyte originals.
+
+    It refuses to scale a raster image *up*, so if the original is no wider than the requested size
+    the original is returned. SVGs are rendered to PNG at any size.
+    """
     m = re.match(
         r"^(https://upload\.wikimedia\.org/wikipedia/[^/]+)/((?:[0-9a-f]/[0-9a-f]{2})/([^/]+))$",
         url,
@@ -41,7 +45,10 @@ def thumb_url(url: str, width: int = 480) -> str:
     if not m or "/thumb/" in url:
         return url
     base, path, name = m.groups()
-    suffix = ".png" if name.lower().endswith((".svg", ".tif", ".tiff")) else ""
+    is_vector = name.lower().endswith(".svg")
+    if not is_vector and 0 < source_width <= width:
+        return url
+    suffix = ".png" if is_vector else ""
     return f"{base}/thumb/{path}/{width}px-{name}{suffix}"
 
 
@@ -114,8 +121,9 @@ def images_of(client, page) -> list[dict]:
         out.append({
             "title": f.title,
             "caption": caption_of(f.title),
-            "thumb": thumb_url(url, 480),
-            "full": thumb_url(url, 1200),
+            "thumb": thumb_url(url, 480, width),
+            "full": thumb_url(url, 1200, width),
+            "original": url,
             "width": width,
             "height": getattr(f, "height", 0) or 0,
         })  # fmt: skip
