@@ -15,7 +15,7 @@ export function Login() {
   };
   return (
     <Layout title="Log in">
-      <div className="container margin-vert--xl login-page">
+      <main className="container margin-vert--xl login-page">
         <h1>Log in</h1>
         <form onSubmit={submit}>
           <label htmlFor="u">Username</label>
@@ -50,7 +50,7 @@ export function Login() {
             Log in
           </button>
         </form>
-      </div>
+      </main>
     </Layout>
   );
 }
@@ -64,12 +64,12 @@ export function Placeholder({
 }) {
   return (
     <Layout title={title}>
-      <div className="container margin-vert--lg">
+      <main className="container margin-vert--lg">
         <h1>{title}</h1>
         <div className="alert alert--info">
           This section is built in Phase {phase}.
         </div>
-      </div>
+      </main>
     </Layout>
   );
 }
@@ -77,10 +77,10 @@ export function Placeholder({
 export function NotFound() {
   return (
     <Layout title="Page not found">
-      <div className="container margin-vert--xl text--center">
+      <main className="container margin-vert--xl text--center">
         <h1>Page not found</h1>
         <p>We could not find what you were looking for.</p>
-      </div>
+      </main>
     </Layout>
   );
 }

@@ -93,3 +93,14 @@ Deviations from, or interpretations of, `PROMPT.md`.
     The seed upgrades an older deployment safely: categories are renamed, old stub pages that you never
     edited go to the Trash (restorable for 30 days), untouched pages get the new text, and anything you
     edited or trashed yourself is left alone. Meeting notes go in the Log with a tag, not a docs page.
+33. **Study details on papers.** Chosen with you: condition studied, FTD subtypes, cohort/dataset
+    (one field: in practice they are the same thing), time frame (free text, because papers describe it
+    differently), NfL involvement, methods to borrow, why it matters. I added how cases were identified
+    (relevant to your diagnostic-code plan), relevance, a trust rating, and a free `Label: value` list
+    for anything not anticipated. All are optional and blank for existing papers, so nothing saved
+    changes. Considered but not added: validation type, adjustment variables, follow-up as a number.
+    Findings are still protein-only; widening them to any measurement (imaging, clinical scores) is
+    open if you want it.
+34. **Labels come from the API.** Enum values are shown with the API's own labels (so `ftd` reads
+    "Frontotemporal dementia"), not a text transformation of the raw value.
+35. **Pages have a `main` landmark** (found while testing) for screen-reader users.

@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { useFormMeta, useList, type Obj } from "../api/crud";
+import { choiceLabel, useFormMeta, useList, type Obj } from "../api/crud";
 import { Badge, humanise } from "../components/Badge";
 import { useFeedback } from "../components/Feedback";
 import { FilterBar, type FilterDef } from "../components/FilterBar";
 import { ItemActions } from "../components/ItemActions";
 import { Markdown } from "../components/Markdown";
 import { PageShell } from "../components/PageShell";
+import { FTD_SUBTYPES } from "../forms/config";
 import { useForms } from "../forms/FormHost";
 import { readParams, sortBy, withParam } from "../lib/params";
 import { useEditMode } from "../theme/EditMode";
@@ -20,6 +21,10 @@ const FILTER_NAMES = [
   "fluid",
   "protein",
   "tag",
+  "condition_studied",
+  "ftd_subtype",
+  "nfl_involved",
+  "relevance",
 ];
 type SortKey = "citation_number" | "short_label" | "year" | "sample_size";
 
@@ -90,6 +95,21 @@ export function PapersPage() {
         ["pet_imaging", "PET imaging"],
       ].map(([value, label]) => ({ value, label })),
     },
+    {
+      name: "condition_studied",
+      label: "Condition",
+      options: choice("condition_studied"),
+    },
+    {
+      name: "ftd_subtype",
+      label: "FTD subtype",
+      options: FTD_SUBTYPES.map((c) => ({
+        value: c.value,
+        label: c.display_name,
+      })),
+    },
+    { name: "nfl_involved", label: "NfL", options: choice("nfl_involved") },
+    { name: "relevance", label: "Relevance", options: choice("relevance") },
     {
       name: "protein",
       label: "Protein",
@@ -255,9 +275,10 @@ export function PapersPage() {
               <tr>
                 {th("citation_number", "[n]")}
                 {th("short_label", "Paper")}
-                <th>Design</th>
-                <th>Population</th>
+                <th>Study</th>
                 {th("sample_size", "n")}
+                <th>NfL</th>
+                <th>Relevance</th>
                 <th>Status</th>
                 <th>
                   <span className="sr-only">Actions</span>
@@ -274,9 +295,27 @@ export function PapersPage() {
                     </Link>
                     <div className="table-sub">{p.title}</div>
                   </td>
-                  <td>{humanise(p.design)}</td>
-                  <td>{humanise(p.population)}</td>
+                  <td>
+                    {humanise(p.design)} · {humanise(p.population)}
+                    {(p.condition_studied || p.dataset) && (
+                      <div className="table-sub">
+                        {[
+                          p.condition_studied &&
+                            choiceLabel(
+                              meta,
+                              "condition_studied",
+                              p.condition_studied,
+                            ),
+                          p.dataset,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                    )}
+                  </td>
                   <td>{p.sample_size ?? ""}</td>
+                  <td>{p.nfl_involved && <Badge value={p.nfl_involved} />}</td>
+                  <td>{p.relevance && <Badge value={p.relevance} />}</td>
                   <td>
                     <Badge value={p.reading_status} />
                   </td>
@@ -311,7 +350,9 @@ export function PapersPage() {
                     <span className="badge badge--secondary">
                       {humanise(p.population)}
                     </span>{" "}
-                    <Badge value={p.reading_status} />
+                    <Badge value={p.reading_status} />{" "}
+                    {p.relevance && <Badge value={p.relevance} />}{" "}
+                    {p.nfl_involved && <Badge value={p.nfl_involved} />}
                   </p>
                 </div>
                 <div className="card__footer">
@@ -337,6 +378,7 @@ export function PaperPage() {
   const { data: requirements } = useList("requirements");
   const { data: posts } = useList("log-posts");
   const { data: tags } = useList("tags");
+  const { data: fieldMeta } = useFormMeta("papers");
   const { editing } = useEditMode();
   const { openForm } = useForms();
   const { toast } = useFeedback();
@@ -396,6 +438,23 @@ export function PaperPage() {
     ["Fluids", (paper.fluids ?? []).map(humanise).join(", ")],
     ["Platform", humanise(paper.platform)],
     ["Review section", humanise(paper.review_section)],
+    [
+      "Condition studied",
+      choiceLabel(fieldMeta, "condition_studied", paper.condition_studied),
+    ],
+    [
+      "FTD subtypes",
+      (paper.ftd_subtypes ?? [])
+        .map(
+          (v: string) =>
+            FTD_SUBTYPES.find((c) => c.value === v)?.display_name ?? v,
+        )
+        .join(", "),
+    ],
+    ["Cohort / dataset", paper.dataset],
+    ["Time frame", paper.time_frame],
+    ["NfL", paper.nfl_involved && <Badge value={paper.nfl_involved} />],
+    ["How cases were identified", paper.case_identification],
   ];
   const reqById = new Map((requirements ?? []).map((r: Obj) => [r.id, r]));
   const myPosts = (posts ?? []).filter((p) =>
@@ -444,6 +503,45 @@ export function PaperPage() {
           </tbody>
         </table>
       </div>
+      {(paper.relevance || paper.quality) && (
+        <p>
+          {paper.relevance && <Badge value={paper.relevance} />}{" "}
+          {paper.quality && <Badge value={paper.quality} />}
+        </p>
+      )}
+      {paper.why_it_matters && (
+        <Markdown
+          source={`:::note Why it matters\n${paper.why_it_matters}\n:::`}
+        />
+      )}
+      {paper.methods_to_borrow && (
+        <>
+          <h2>Methods to borrow</h2>
+          <Markdown source={paper.methods_to_borrow} />
+        </>
+      )}
+      {(paper.extra_details ?? []).length > 0 && (
+        <>
+          <h2>Extra details</h2>
+          <div className="table-wrap">
+            <table>
+              <tbody>
+                {paper.extra_details.map((line: string, i: number) => {
+                  const at = line.indexOf(":");
+                  return (
+                    <tr key={i}>
+                      <th scope="row">
+                        {at > 0 ? line.slice(0, at).trim() : "Note"}
+                      </th>
+                      <td>{at > 0 ? line.slice(at + 1).trim() : line}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
       {paper.key_finding && (
         <Markdown source={`:::tip Key finding\n${paper.key_finding}\n:::`} />
       )}

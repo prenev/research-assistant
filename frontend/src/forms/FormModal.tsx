@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useMemo, useState, type FormEvent } from "react";
 import { ApiError, post } from "../api/client";
 import {
   useFormMeta,
@@ -425,26 +425,28 @@ export function FormModal({
               );
           }
           return (
-            <div
-              key={f.name}
-              className={`form-row${f.wide || kind === "markdown" ? " form-row--wide" : ""}`}
-            >
-              {kind !== "bool" && (
-                <label htmlFor={fid}>
-                  {label}
-                  {m?.required && <span aria-hidden="true"> *</span>}
-                </label>
-              )}
-              {control}
-              {f.help && kind !== "bool" && (
-                <small className="form-help">{f.help}</small>
-              )}
-              {err && (
-                <div id={`${fid}-err`} className="field-error" role="alert">
-                  {err}
-                </div>
-              )}
-            </div>
+            <Fragment key={f.name}>
+              {f.section && <h3 className="form-section">{f.section}</h3>}
+              <div
+                className={`form-row${f.wide || kind === "markdown" ? " form-row--wide" : ""}`}
+              >
+                {kind !== "bool" && (
+                  <label htmlFor={fid}>
+                    {label}
+                    {m?.required && <span aria-hidden="true"> *</span>}
+                  </label>
+                )}
+                {control}
+                {f.help && kind !== "bool" && (
+                  <small className="form-help">{f.help}</small>
+                )}
+                {err && (
+                  <div id={`${fid}-err`} className="field-error" role="alert">
+                    {err}
+                  </div>
+                )}
+              </div>
+            </Fragment>
           );
         })}
         {lowEvents && (

@@ -29,6 +29,8 @@ export interface FieldDef {
   relation?: RelationDef;
   choices?: { value: string; display_name: string }[];
   wide?: boolean;
+  /** A heading shown above this field, to group a long form. */
+  section?: string;
 }
 
 export interface ModelConfig {
@@ -73,6 +75,14 @@ export const FLUIDS = [
   { value: "pet_imaging", display_name: "PET imaging" },
 ];
 
+export const FTD_SUBTYPES = [
+  { value: "bvftd", display_name: "bvFTD (behavioural variant)" },
+  { value: "svppa", display_name: "svPPA (semantic variant)" },
+  { value: "nfvppa", display_name: "nfvPPA (non-fluent variant)" },
+  { value: "ftd_mnd", display_name: "FTD with motor neuron disease" },
+  { value: "unspecified", display_name: "FTD, subtype not specified" },
+];
+
 export const MODELS: Record<string, ModelConfig> = {
   paper: {
     key: "paper",
@@ -81,7 +91,7 @@ export const MODELS: Record<string, ModelConfig> = {
     titleOf: (o) => o.short_label || o.title,
     defaults: { fluids: [], limitations: [] },
     fields: [
-      { name: "title", kind: "textarea", wide: true },
+      { name: "title", section: "The paper", kind: "textarea", wide: true },
       { name: "authors", help: 'Display string, e.g. "M. Malpetti et al."' },
       { name: "first_author_surname", label: "First author surname" },
       { name: "year", kind: "number" },
@@ -96,7 +106,7 @@ export const MODELS: Record<string, ModelConfig> = {
         name: "citation_number",
         label: "Citation number",
         kind: "number",
-        help: "Your A3 reference number",
+        help: "The number used in citations like {{cite:1}}",
       },
       {
         name: "ieee_reference",
@@ -104,21 +114,78 @@ export const MODELS: Record<string, ModelConfig> = {
         kind: "textarea",
         wide: true,
       },
-      { name: "design" },
+      { name: "design", section: "Study design" },
       { name: "population" },
       { name: "sample_size", kind: "number" },
       { name: "sample_size_note", label: "Sample size note" },
       { name: "fluids", kind: "choices", choices: FLUIDS },
       { name: "platform" },
+      {
+        name: "condition_studied",
+        section: "What was studied",
+        label: "Condition studied",
+        help: "FTD, dementia in general, or something else?",
+      },
+      {
+        name: "ftd_subtypes",
+        label: "FTD subtypes",
+        kind: "choices",
+        choices: FTD_SUBTYPES,
+      },
+      {
+        name: "dataset",
+        label: "Cohort / dataset",
+        help: "e.g. UK Biobank, or the study's own cohort",
+      },
+      {
+        name: "time_frame",
+        label: "Time frame",
+        help: "Follow-up length, or time from blood sample to diagnosis",
+        wide: true,
+      },
+      { name: "nfl_involved", label: "NfL involved?" },
+      {
+        name: "case_identification",
+        label: "How cases were identified",
+        help: "e.g. clinical diagnosis, hospital records, registry codes",
+        wide: true,
+      },
       { name: "review_section", label: "Review section" },
       {
         name: "key_finding",
+        section: "What it found",
         label: "Key finding",
         kind: "textarea",
         wide: true,
       },
       { name: "limitations", kind: "strings", wide: true },
-      { name: "reading_status", label: "Reading status" },
+      {
+        name: "reading_status",
+        section: "My assessment",
+        label: "Reading status",
+      },
+      { name: "relevance", label: "Relevance to my project" },
+      { name: "quality", label: "How much I trust it" },
+      {
+        name: "why_it_matters",
+        label: "Why it matters",
+        kind: "textarea",
+        wide: true,
+        help: "One or two lines on why this paper is useful to you",
+      },
+      {
+        name: "methods_to_borrow",
+        label: "Methods to borrow",
+        kind: "textarea",
+        wide: true,
+      },
+      {
+        name: "extra_details",
+        label: "Extra details",
+        kind: "strings",
+        wide: true,
+        help: 'Anything else worth tracking, one per line as "Label: value", e.g. "Funding: none declared"',
+      },
       { name: "tags", kind: "relation", relation: tagRel },
       { name: "notes", kind: "markdown", wide: true },
     ],

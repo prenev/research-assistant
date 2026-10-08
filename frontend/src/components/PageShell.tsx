@@ -14,7 +14,7 @@ export function PageShell({
 }) {
   return (
     <Layout title={title}>
-      <div
+      <main
         className={`container margin-vert--lg${narrow ? " container--narrow" : ""}`}
       >
         <div className="page-header">
@@ -22,7 +22,7 @@ export function PageShell({
           <div className="page-header__actions">{actions}</div>
         </div>
         {children}
-      </div>
+      </main>
     </Layout>
   );
 }

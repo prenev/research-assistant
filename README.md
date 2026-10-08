@@ -91,6 +91,13 @@ pipeline kanban board (Phase 5).
   Filters live in the URL, so a filtered view can be bookmarked. Table or card view, sortable columns.
   Each paper page shows the IEEE reference (with copy), metadata, key finding, limitations, findings,
   requirement assessments and linked log posts.
+- **Study details on each paper:** besides the basics, a paper can record the *condition studied*
+  (FTD, dementia of any cause, Alzheimer's and so on), *FTD subtypes*, the *cohort / dataset*, the
+  *time frame* (follow-up, or time from blood sample to diagnosis), whether *NfL* was involved (not
+  measured, measured, or measured and compared), *how cases were identified*, your own *relevance*
+  and *trust* ratings, *why it matters*, *methods to borrow*, and a free list of *extra details*
+  (`Label: value`) for anything else. The papers list can be filtered by condition, subtype, NfL and
+  relevance, and the dataset and notes are searchable.
 - **Proteins:** filterable list and a profile page with charts of findings by direction and population,
   the evidence table, linked log posts and any decision that mentions the protein.
 - **About a protein (Wikipedia):** tap **ⓘ Info** on a protein (or open its profile) to read the

@@ -275,3 +275,106 @@ def test_greek_letters_are_spelled_out_in_slugs(client):
     ]:
         r = client.post(f"{API}/proteins/", {"name": name}, format="json")
         assert r.status_code == 201 and r.json()["slug"] == slug, (name, r.json())
+
+
+# ---- study details on papers ----
+def test_paper_study_details_roundtrip_and_defaults_for_old_papers(client):
+    old = make_paper()  # created without any of the new fields
+    d = client.get(f"{API}/papers/{old.id}/").json()
+    assert d["condition_studied"] == "" and d["ftd_subtypes"] == [] and d["extra_details"] == []
+    r = client.post(
+        f"{API}/papers/",
+        {
+            "title": "Detailed",
+            "condition_studied": "ftd",
+            "ftd_subtypes": ["bvftd", "svppa"],
+            "dataset": "UK Biobank",
+            "time_frame": "Blood taken a median of 6 years before diagnosis",
+            "nfl_involved": "compared",
+            "case_identification": "Hospital records",
+            "relevance": "core",
+            "quality": "medium",
+            "why_it_matters": "Closest design to mine.",
+            "methods_to_borrow": "Nested cross-validation",
+            "extra_details": ["Funding: none declared", "Protein count: 1500"],
+        },
+        format="json",
+    )
+    assert r.status_code == 201, r.json()
+    assert r.json()["ftd_subtypes"] == ["bvftd", "svppa"] and r.json()["nfl_involved"] == "compared"
+
+
+def test_study_detail_validation(client):
+    bad = {"title": "x"}
+    assert (
+        client.post(f"{API}/papers/", {**bad, "ftd_subtypes": ["nope"]}, format="json").status_code
+        == 400
+    )
+    assert (
+        client.post(
+            f"{API}/papers/", {**bad, "extra_details": "not a list"}, format="json"
+        ).status_code
+        == 400
+    )
+    assert (
+        client.post(f"{API}/papers/", {**bad, "extra_details": [1, 2]}, format="json").status_code
+        == 400
+    )
+    assert (
+        client.post(f"{API}/papers/", {**bad, "relevance": "huge"}, format="json").status_code
+        == 400
+    )
+    assert (
+        client.post(
+            f"{API}/papers/", {**bad, "condition_studied": "pet_rock"}, format="json"
+        ).status_code
+        == 400
+    )
+
+
+def test_study_detail_filters(client):
+    a = make_paper(
+        condition_studied="ftd", nfl_involved="compared", relevance="core", ftd_subtypes=["bvftd"]
+    )
+    b = make_paper(
+        first_author_surname="B",
+        condition_studied="dementia_any",
+        nfl_involved="not_measured",
+        relevance="background",
+        quality="low",
+    )
+    ids = lambda q: {p["id"] for p in client.get(f"{API}/papers/?{q}").json()["results"]}  # noqa: E731
+    assert ids("condition_studied=ftd") == {a.id}
+    assert ids("nfl_involved=not_measured") == {b.id}
+    assert ids("relevance=core") == {a.id}
+    assert ids("quality=low") == {b.id}
+    assert ids("ftd_subtype=bvftd") == {a.id}
+    assert ids("ftd_subtype=svppa") == set()
+    assert ids("condition_studied=ftd&nfl_involved=compared") == {a.id}
+
+
+def test_study_details_are_searchable(client):
+    p = make_paper(dataset="GENFI cohort", why_it_matters="Shows presymptomatic change")
+    assert {x["id"] for x in client.get(f"{API}/papers/?search=GENFI").json()["results"]} == {p.id}
+    assert {
+        x["id"] for x in client.get(f"{API}/papers/?search=presymptomatic").json()["results"]
+    } == {p.id}
+    idx = client.get(f"{API}/search-index/").json()
+    hit = next(i for i in idx if i["type"] == "papers" and i["url"].endswith(p.slug))
+    assert "GENFI" in hit["text"] and "presymptomatic" in hit["text"]
+
+
+def test_form_meta_offers_the_new_choices(client):
+    f = client.get(f"{API}/form-meta/papers/").json()["fields"]
+    assert {c["value"] for c in f["condition_studied"]["choices"]} >= {
+        "ftd",
+        "dementia_any",
+        "alzheimers",
+    }
+    assert {c["value"] for c in f["nfl_involved"]["choices"]} == {
+        "not_measured",
+        "measured",
+        "compared",
+        "unclear",
+    }
+    assert {c["value"] for c in f["relevance"]["choices"]} == {"core", "useful", "background"}

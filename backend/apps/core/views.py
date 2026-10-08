@@ -214,6 +214,11 @@ class SidebarReorderView(APIView):
         return SidebarView().get(request)
 
 
+def paper_text(p):
+    parts = [p.authors, p.key_finding, p.dataset, p.why_it_matters, p.doi or ""]
+    return " ".join(x for x in parts if x)[:1000]
+
+
 class SearchIndexView(APIView):
     """Compact index for client-side Fuse.js search. Text is truncated to keep it light."""
 
@@ -236,7 +241,7 @@ class SearchIndexView(APIView):
                     "title": p.title,
                     "url": f"/papers/{p.slug}",
                     "context": p.short_label,
-                    "text": f"{p.authors} {p.key_finding} {p.doi or ''}"[:1000],
+                    "text": paper_text(p),
                 }
             )
         for p in Protein.objects.all():

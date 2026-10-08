@@ -9,14 +9,19 @@ from apps.core.viewsets import NotebookViewSet
 
 from . import citations
 from .models import (
+    ConditionStudied,
     Design,
     Direction,
     Finding,
     FindingContext,
     Fluid,
+    FtdSubtype,
+    NflInvolved,
     Paper,
     Population,
+    Quality,
     ReadingStatus,
+    Relevance,
     ReviewSection,
     Tag,
 )
@@ -29,6 +34,11 @@ class PaperFilter(df.FilterSet):
     reading_status = df.ChoiceFilter(choices=ReadingStatus.choices)
     review_section = df.ChoiceFilter(choices=ReviewSection.choices)
     fluid = df.ChoiceFilter(choices=Fluid.choices, method="filter_fluid")
+    condition_studied = df.ChoiceFilter(choices=ConditionStudied.choices)
+    nfl_involved = df.ChoiceFilter(choices=NflInvolved.choices)
+    relevance = df.ChoiceFilter(choices=Relevance.choices)
+    quality = df.ChoiceFilter(choices=Quality.choices)
+    ftd_subtype = df.ChoiceFilter(choices=FtdSubtype.choices, method="filter_subtype")
     protein = df.CharFilter(method="filter_protein", help_text="Protein slug")
     tag = df.CharFilter(field_name="tags__slug")
     year_min = df.NumberFilter(field_name="year", lookup_expr="gte")
@@ -51,6 +61,10 @@ class PaperFilter(df.FilterSet):
         ids = [p.id for p in qs if value in (p.fluids or [])]
         return qs.filter(id__in=ids)
 
+    def filter_subtype(self, qs, name, value):
+        ids = [p.id for p in qs if value in (p.ftd_subtypes or [])]
+        return qs.filter(id__in=ids)
+
     def filter_protein(self, qs, name, value):
         return qs.filter(
             findings__protein__slug=value, findings__deleted_at__isnull=True
@@ -60,7 +74,10 @@ class PaperFilter(df.FilterSet):
 class PaperViewSet(NotebookViewSet):
     serializer_class = PaperSerializer
     filterset_class = PaperFilter
-    search_fields = ["title", "authors", "first_author_surname", "key_finding", "doi", "journal"]
+    search_fields = [
+        "title", "authors", "first_author_surname", "key_finding", "doi", "journal",
+        "dataset", "why_it_matters", "methods_to_borrow",
+    ]  # fmt: skip
     ordering_fields = ["citation_number", "year", "sample_size", "title", "created_at"]
 
     def get_queryset(self):

@@ -86,6 +86,53 @@ class FindingContext(models.TextChoices):
     OTHER = "other", "Other"
 
 
+class ConditionStudied(models.TextChoices):
+    FTD = "ftd", "Frontotemporal dementia"
+    DEMENTIA_ANY = "dementia_any", "Dementia (any cause)"
+    ALZHEIMERS = "alzheimers", "Alzheimer's disease"
+    OTHER_NEURODEGENERATIVE = "other_neurodegenerative", "Other neurodegenerative disease"
+    GENERAL_POPULATION = "general_population", "General population (no specific disease)"
+    OTHER = "other", "Other"
+
+
+class FtdSubtype(models.TextChoices):
+    BVFTD = "bvftd", "bvFTD (behavioural variant)"
+    SVPPA = "svppa", "svPPA (semantic variant)"
+    NFVPPA = "nfvppa", "nfvPPA (non-fluent variant)"
+    FTD_MND = "ftd_mnd", "FTD with motor neuron disease"
+    UNSPECIFIED = "unspecified", "FTD, subtype not specified"
+
+
+class NflInvolved(models.TextChoices):
+    NOT_MEASURED = "not_measured", "Not measured"
+    MEASURED = "measured", "Measured, not compared"
+    COMPARED = "compared", "Measured and compared (added value tested)"
+    UNCLEAR = "unclear", "Unclear"
+
+
+class Relevance(models.TextChoices):
+    CORE = "core", "Core to my question"
+    USEFUL = "useful", "Useful"
+    BACKGROUND = "background", "Background only"
+
+
+class Quality(models.TextChoices):
+    HIGH = "high", "High"
+    MEDIUM = "medium", "Medium"
+    LOW = "low", "Low"
+
+
+def validate_subtypes(value):
+    valid = set(FtdSubtype.values)
+    if not isinstance(value, list) or any(v not in valid for v in value):
+        raise ValidationError(f"Each subtype must be one of: {', '.join(sorted(valid))}.")
+
+
+def validate_string_list(value):
+    if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+        raise ValidationError("Must be a list of text lines.")
+
+
 def validate_fluids(value):
     valid = set(Fluid.values)
     if not isinstance(value, list) or any(v not in valid for v in value):
@@ -134,6 +181,32 @@ class Paper(BaseModel):
     platform = models.CharField(max_length=20, choices=Platform.choices, default=Platform.OTHER)
     review_section = models.CharField(
         max_length=30, choices=ReviewSection.choices, default=ReviewSection.INTRO
+    )
+    # Study details: what a paper is about and how it was done
+    condition_studied = models.CharField(
+        max_length=30, choices=ConditionStudied.choices, blank=True
+    )
+    ftd_subtypes = models.JSONField(default=list, blank=True, validators=[validate_subtypes])
+    dataset = models.CharField(max_length=200, blank=True, help_text="Cohort or dataset used.")
+    time_frame = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text="Follow-up length, or time from blood sample to diagnosis.",
+    )
+    nfl_involved = models.CharField(max_length=20, choices=NflInvolved.choices, blank=True)
+    case_identification = models.CharField(
+        max_length=400, blank=True, help_text="How cases were identified or diagnosed."
+    )
+    # My assessment
+    relevance = models.CharField(max_length=12, choices=Relevance.choices, blank=True)
+    quality = models.CharField(max_length=8, choices=Quality.choices, blank=True)
+    why_it_matters = models.TextField(blank=True)
+    methods_to_borrow = models.TextField(blank=True)
+    extra_details = models.JSONField(
+        default=list,
+        blank=True,
+        validators=[validate_string_list],
+        help_text='Your own tracked details, one per line as "Label: value".',
     )
     key_finding = models.TextField(blank=True)
     limitations = models.JSONField(default=list, blank=True)

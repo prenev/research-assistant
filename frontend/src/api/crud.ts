@@ -103,3 +103,16 @@ export function useRestore(endpoint: string, id: number) {
     onSuccess: () => qc.invalidateQueries(),
   });
 }
+
+/** The readable label for an enum value, using the API's own choice list (falls back to the raw value). */
+export function choiceLabel(
+  meta: Record<string, FieldMeta> | undefined,
+  field: string,
+  value: string | null | undefined,
+): string {
+  if (!value) return "";
+  return (
+    meta?.[field]?.choices?.find((c) => c.value === value)?.display_name ??
+    value.replace(/_/g, " ")
+  );
+}
