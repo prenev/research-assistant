@@ -1,0 +1,101 @@
+[
+  {
+    "name": "TNF-α",
+    "category": "cytokine",
+    "role": "candidate",
+    "aliases": [
+      "TNF",
+      "TNFA"
+    ]
+  },
+  {
+    "name": "TNF-R1",
+    "category": "cytokine_receptor",
+    "role": "candidate"
+  },
+  {
+    "name": "IL-6",
+    "category": "cytokine",
+    "role": "candidate"
+  },
+  {
+    "name": "IL-1α",
+    "category": "cytokine",
+    "role": "candidate"
+  },
+  {
+    "name": "IL-12",
+    "category": "cytokine",
+    "role": "candidate"
+  },
+  {
+    "name": "IL-17A",
+    "category": "cytokine",
+    "role": "candidate"
+  },
+  {
+    "name": "IL-18",
+    "category": "cytokine",
+    "role": "candidate"
+  },
+  {
+    "name": "IP-10",
+    "category": "chemokine",
+    "role": "candidate",
+    "aliases": [
+      "CXCL10"
+    ]
+  },
+  {
+    "name": "M-CSF",
+    "category": "growth_factor",
+    "role": "candidate"
+  },
+  {
+    "name": "MCP-1",
+    "category": "chemokine",
+    "role": "candidate",
+    "aliases": [
+      "CCL2"
+    ]
+  },
+  {
+    "name": "GRO-α",
+    "category": "chemokine",
+    "role": "candidate",
+    "aliases": [
+      "CXCL1"
+    ]
+  },
+  {
+    "name": "C1q",
+    "category": "complement",
+    "role": "candidate"
+  },
+  {
+    "name": "C3b",
+    "category": "complement",
+    "role": "candidate"
+  },
+  {
+    "name": "CRP",
+    "category": "acute_phase",
+    "role": "candidate"
+  },
+  {
+    "name": "NfL",
+    "category": "neurodegeneration_marker",
+    "role": "comparator",
+    "slug": "nfl",
+    "olink_assay_name": "NEFL",
+    "aliases": [
+      "NEFL",
+      "neurofilament light"
+    ]
+  },
+  {
+    "name": "GFAP",
+    "category": "neurodegeneration_marker",
+    "role": "comparator"
+  }
+]

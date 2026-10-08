@@ -1,0 +1,41 @@
+[
+  {
+    "title": "Data access"
+  },
+  {
+    "title": "Cohort definition"
+  },
+  {
+    "title": "FTD diagnostic-code algorithm"
+  },
+  {
+    "title": "Event audit"
+  },
+  {
+    "title": "Protein QC and missingness"
+  },
+  {
+    "title": "Candidate set definition"
+  },
+  {
+    "title": "Nested CV setup"
+  },
+  {
+    "title": "Prediction horizon fixed"
+  },
+  {
+    "title": "M1/M2/M3 comparison"
+  },
+  {
+    "title": "Calibration"
+  },
+  {
+    "title": "Sensitivity analyses"
+  },
+  {
+    "title": "External validation plan"
+  },
+  {
+    "title": "Write-up"
+  }
+]

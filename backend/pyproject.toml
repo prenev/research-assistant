@@ -1,0 +1,33 @@
+[project]
+name = "ftd-notebook-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "django>=5.1,<6",
+  "djangorestframework>=3.15",
+  "django-filter>=24.3",
+  "drf-spectacular>=0.27",
+  "django-simple-history>=3.7",
+  "django-cors-headers>=4.4",
+  "dj-database-url>=2.2",
+  "pillow>=10",
+  "gunicorn>=22",
+  "psycopg[binary]>=3.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-django>=4.9", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["test_*.py"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "DJ"]
+ignore = ["DJ001"]

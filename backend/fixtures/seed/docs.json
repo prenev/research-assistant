@@ -1,0 +1,92 @@
+[
+  {
+    "title": "Overview",
+    "pages": [
+      {
+        "title": "Research question",
+        "slug": "research-question",
+        "body_file": "research-question.md"
+      },
+      {
+        "title": "Intended contributions",
+        "slug": "intended-contributions",
+        "body_file": "intended-contributions.md"
+      }
+    ]
+  },
+  {
+    "title": "Literature review",
+    "pages": [
+      {
+        "title": "Introduction",
+        "slug": "lit-introduction",
+        "body_file": "lit-introduction.md"
+      },
+      {
+        "title": "Peripheral inflammation in FTD",
+        "slug": "lit-peripheral-inflammation",
+        "body_file": "lit-peripheral-inflammation.md"
+      },
+      {
+        "title": "A signal before symptom onset",
+        "slug": "lit-presymptomatic-signal",
+        "body_file": "lit-presymptomatic-signal.md"
+      },
+      {
+        "title": "Added value beyond existing blood markers",
+        "slug": "lit-added-value",
+        "body_file": "lit-added-value.md"
+      },
+      {
+        "title": "A population setting and method to test it",
+        "slug": "lit-population-method",
+        "body_file": "lit-population-method.md"
+      },
+      {
+        "title": "Synthesis and research gap",
+        "slug": "lit-synthesis-gap",
+        "body_file": "lit-synthesis-gap.md"
+      }
+    ]
+  },
+  {
+    "title": "Methods",
+    "pages": [
+      {
+        "title": "Population and outcome",
+        "slug": "methods-population-outcome",
+        "body_file": "methods-population-outcome.md"
+      },
+      {
+        "title": "Biomarkers and comparators",
+        "slug": "methods-biomarkers",
+        "body_file": "methods-biomarkers.md"
+      },
+      {
+        "title": "Model development and validation",
+        "slug": "methods-model-validation",
+        "body_file": "methods-model-validation.md"
+      },
+      {
+        "title": "Performance and robustness",
+        "slug": "methods-performance",
+        "body_file": "methods-performance.md"
+      }
+    ]
+  },
+  {
+    "title": "Project",
+    "pages": [
+      {
+        "title": "Data policy",
+        "slug": "data-policy",
+        "body_file": "data-policy.md"
+      },
+      {
+        "title": "How to use this site",
+        "slug": "how-to-use",
+        "body_file": "how-to-use.md"
+      }
+    ]
+  }
+]

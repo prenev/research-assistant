@@ -1,0 +1,37 @@
+[
+  {
+    "title": "M3 vs M2 is the primary comparison",
+    "decision": "The primary comparison is M3 vs M2, using the paired change in time-dependent AUC plus calibration.",
+    "related_stage": "M1/M2/M3 comparison",
+    "prespecified": true,
+    "status": "adopted"
+  },
+  {
+    "title": "No univariable significance screening",
+    "decision": "Candidate proteins are not pre-filtered by univariable significance.",
+    "related_stage": "Candidate set definition",
+    "prespecified": true,
+    "status": "adopted"
+  },
+  {
+    "title": "Preprocessing learned within training folds",
+    "decision": "All preprocessing is learned within the training folds of the nested cross-validation.",
+    "related_stage": "Nested CV setup",
+    "prespecified": true,
+    "status": "adopted"
+  },
+  {
+    "title": "Prediction horizon fixed after follow-up audit and before model comparison",
+    "decision": "The horizon is fixed after the follow-up audit and before any model comparison.",
+    "related_stage": "Prediction horizon fixed",
+    "prespecified": true,
+    "status": "adopted"
+  },
+  {
+    "title": "2- and 5-year exclusion sensitivity analyses",
+    "decision": "Sensitivity analyses exclude diagnoses within 2 and within 5 years of baseline.",
+    "related_stage": "Sensitivity analyses",
+    "prespecified": true,
+    "status": "adopted"
+  }
+]
