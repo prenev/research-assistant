@@ -19,7 +19,7 @@ Full build spec: [`PROMPT.md`](PROMPT.md). Plan: [`PLAN.md`](PLAN.md). Deviation
 | Phase | State |
 |---|---|
 | 1. Backend foundation | Done |
-| 2. Docusaurus-style shell | Not started |
+| 2. Docusaurus-style shell | Done (search, edit mode and visualisations come in later phases) |
 | 3. Editing everywhere | Not started |
 | 4. Papers, proteins, log | Not started |
 | 5. Visualisations | Not started |
@@ -38,6 +38,26 @@ make test
 - API: `http://localhost:8000/api/v1/`, docs at `/api/docs/`
 - Admin: `/admin/`
 - Configuration: copy `.env.example` to `.env` (production needs `SECRET_KEY`)
+
+## Frontend (Phase 2)
+
+```bash
+cd frontend && npm install
+npm run dev        # http://localhost:5173, proxies /api to Django on :8000
+npm test           # Vitest
+npm run build
+# Playwright e2e (needs the backend running with seed data and a user)
+E2E_USER=owner E2E_PASSWORD=... npx playwright test
+```
+
+Built on Infima (the CSS Docusaurus uses). Includes the navbar with mobile drawer, dark mode
+with no flash, the three-column docs layout driven by `/api/v1/sidebar/`, breadcrumbs, TOC with
+scrollspy, prev/next, category card pages, and a Markdown renderer for admonitions, titled and
+highlighted code blocks, tabs, details, and the `{{cite}}`, `{{paper}}`, `{{protein}}` and `{{viz}}`
+embeds. Raw HTML in Markdown is never rendered.
+
+Not yet built: search (Phase 4), edit mode and quick add (Phase 3), the home page's mini evidence
+matrix (Phase 5). Those controls are visible but disabled or absent.
 
 ## Backend notes
 

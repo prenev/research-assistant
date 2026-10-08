@@ -27,3 +27,13 @@ Deviations from, or interpretations of, `PROMPT.md`.
     stats, sidebar (+reorder) and search-index.
 12. **Settings GET is public** so the app shell can load branding before login. It exposes only
     branding fields and `public_read`/`min_event_count_warning`.
+13. **Admonition/tabs/details syntax is parsed by a small custom block parser** (`src/lib/markdown.ts`)
+    rather than remark-directive, because Docusaurus's `:::note Title` form is not directive syntax.
+    Tabs use `::tab Label` separators inside `:::tabs`; details use `:::details Summary`.
+14. **Side-by-side check against a real Docusaurus 3 site was not possible** in this environment.
+    The layout follows Infima and the classic theme's structure and was checked by screenshot only.
+    Please compare against your own Docusaurus site.
+15. **Login page doubles as the gate.** When the site is not public and you are logged out, the app
+    shows the login form instead of per-request 403 errors.
+16. **Primary colour shades** are derived in the browser from `primary_colour` (lightness offsets
+    approximating Docusaurus's palette tool), with a lighter variant in dark mode.

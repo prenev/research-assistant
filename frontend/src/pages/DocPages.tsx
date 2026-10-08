@@ -1,0 +1,209 @@
+import { Navigate, useParams, Link } from "react-router-dom";
+import { useDocPage, useSidebar } from "../api/hooks";
+import type { SidebarCategory, SidebarItem } from "../api/types";
+import { Markdown } from "../components/Markdown";
+import { extractToc } from "../lib/markdown";
+import { DocSidebar, flattenPages } from "../theme/DocSidebar";
+import { Breadcrumbs, Paginator, Toc } from "../theme/DocLayout";
+import { Layout } from "../theme/Layout";
+
+function DocsShell({
+  children,
+  items,
+}: {
+  children: React.ReactNode;
+  items: SidebarItem[];
+}) {
+  return (
+    <div className="docs-wrapper">
+      <DocSidebar items={items} />
+      <main className="doc-main">{children}</main>
+    </div>
+  );
+}
+
+export function DocsIndex() {
+  const { data } = useSidebar();
+  const first = data && flattenPages(data)[0];
+  if (!data)
+    return (
+      <Layout>
+        <div className="container margin-vert--lg">Loading…</div>
+      </Layout>
+    );
+  return first ? (
+    <Navigate to={`/docs/${first.slug}`} replace />
+  ) : (
+    <Layout title="Docs">
+      <p className="container margin-vert--lg">No docs yet.</p>
+    </Layout>
+  );
+}
+
+export function DocPageView() {
+  const { slug } = useParams();
+  const { data: sidebar } = useSidebar();
+  const { data: page, isError, isLoading } = useDocPage(slug);
+  if (!sidebar || isLoading)
+    return (
+      <Layout>
+        <div className="container margin-vert--lg">Loading…</div>
+      </Layout>
+    );
+  if (isError || !page)
+    return (
+      <Layout title="Page not found">
+        <DocsShell items={sidebar}>
+          <div className="container padding-vert--lg">
+            <h1>Page not found</h1>
+            <Link to="/docs">Back to docs</Link>
+          </div>
+        </DocsShell>
+      </Layout>
+    );
+  const flat = flattenPages(sidebar);
+  const i = flat.findIndex((p) => p.slug === page.slug);
+  const prev = flat[i - 1];
+  const next = flat[i + 1];
+  const toc = extractToc(page.body);
+  const hasH1 = /^#\s/m.test(page.body);
+  return (
+    <Layout title={page.title}>
+      <DocsShell items={sidebar}>
+        <div className="container padding-top--md padding-bottom--lg">
+          <div className="row">
+            <div className="col doc-item-col">
+              <Breadcrumbs trail={flat[i]?.trail ?? []} current={page.title} />
+              <article>
+                {!hasH1 && (
+                  <header>
+                    <h1>{page.title}</h1>
+                  </header>
+                )}
+                <Markdown source={page.body} />
+              </article>
+              <footer className="doc-footer">
+                <div className="row margin-top--sm">
+                  <div className="col">
+                    <span
+                      className="doc-footer__edit"
+                      title="Editing arrives in Phase 3"
+                    >
+                      ✎ Edit this page
+                    </span>
+                  </div>
+                  <div className="col text--right">
+                    <em>
+                      <small>
+                        Last updated on{" "}
+                        <b>
+                          {new Date(page.updated_at).toLocaleDateString(
+                            "en-GB",
+                            { year: "numeric", month: "short", day: "numeric" },
+                          )}
+                        </b>
+                        {page.last_edited_by_name && (
+                          <>
+                            {" "}
+                            by <b>{page.last_edited_by_name}</b>
+                          </>
+                        )}
+                      </small>
+                    </em>
+                  </div>
+                </div>
+              </footer>
+              <Paginator
+                prev={prev && { to: `/docs/${prev.slug}`, label: prev.title }}
+                next={next && { to: `/docs/${next.slug}`, label: next.title }}
+              />
+            </div>
+            <div className="col col--3 toc-col">
+              <Toc items={toc} />
+            </div>
+          </div>
+        </div>
+      </DocsShell>
+    </Layout>
+  );
+}
+
+function findCategory(
+  items: SidebarItem[],
+  slug: string,
+  trail: SidebarCategory[] = [],
+): { cat: SidebarCategory; trail: SidebarCategory[] } | null {
+  for (const it of items) {
+    if (it.type !== "category") continue;
+    if (it.slug === slug) return { cat: it, trail };
+    const r = findCategory(it.items, slug, [...trail, it]);
+    if (r) return r;
+  }
+  return null;
+}
+
+export function DocCategoryView() {
+  const { slug = "" } = useParams();
+  const { data: sidebar } = useSidebar();
+  if (!sidebar)
+    return (
+      <Layout>
+        <div className="container margin-vert--lg">Loading…</div>
+      </Layout>
+    );
+  const found = findCategory(sidebar, slug);
+  return (
+    <Layout title={found?.cat.title}>
+      <DocsShell items={sidebar}>
+        <div className="container padding-top--md padding-bottom--lg">
+          <div className="row">
+            <div className="col doc-item-col">
+              {found ? (
+                <>
+                  <Breadcrumbs trail={found.trail} current={found.cat.title} />
+                  <header>
+                    <h1>{found.cat.title}</h1>
+                  </header>
+                  {found.cat.description && <p>{found.cat.description}</p>}
+                  <section className="margin-top--lg">
+                    <div className="row">
+                      {found.cat.items.map((it) => (
+                        <article
+                          key={`${it.type}${it.id}`}
+                          className="col col--6 margin-bottom--lg"
+                        >
+                          <Link
+                            className="card padding--lg doc-card"
+                            to={
+                              it.type === "page"
+                                ? `/docs/${it.slug}`
+                                : `/docs/category/${it.slug}`
+                            }
+                          >
+                            <h2 className="text--truncate" title={it.title}>
+                              {it.type === "page" ? "📄️" : "🗃️"} {it.title}
+                            </h2>
+                            {it.type === "category" && (
+                              <p className="text--truncate">
+                                {it.items.length} items
+                              </p>
+                            )}
+                          </Link>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                </>
+              ) : (
+                <>
+                  <h1>Category not found</h1>
+                  <Link to="/docs">Back to docs</Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </DocsShell>
+    </Layout>
+  );
+}

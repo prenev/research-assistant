@@ -7,7 +7,7 @@ Django 5 project (`backend/config`), seven apps, all models with history and sof
 DRF viewsets with django-filter, session auth with login throttle, OpenAPI at `/api/docs/`,
 Django admin for every model, idempotent `seed`. Tested with pytest (27 tests).
 
-## Phase 2: Docusaurus-identical shell
+## Phase 2: Docusaurus-identical shell (done)
 Vite + React + TS + Infima. Navbar (sticky, 60px), footer, dark mode without flash, mobile drawer,
 docs three-column layout driven by `/sidebar/`, breadcrumbs, TOC with scrollspy, prev/next,
 doc cards, markdown renderer (admonitions, code blocks, tabs, details, embeds), home hero.
