@@ -210,3 +210,20 @@ def test_endpoint_reports_unreachable_without_caching(client, monkeypatch):
 def test_endpoint_requires_login(anon):
     p = Protein.objects.create(name="GFAP")
     assert anon.get(f"{API}/proteins/{p.id}/wikipedia/").status_code == 403
+
+
+def test_proteins_with_old_style_slugs_get_wikipedia_info_too(client, fake):
+    """Proteins created before slugs spelled out Greek letters (e.g. 'tnf') must work the same."""
+    fake(
+        FakeClient(
+            [FakePage("Tumor necrosis factor", "TNF is a cytokine.")],
+            search_hits={"TNF-α protein": ["Tumor necrosis factor"]},
+        )
+    )
+    old = Protein.objects.create(name="TNF-α")
+    Protein.objects.filter(pk=old.pk).update(slug="tnf")  # the slug it had before the change
+    r = client.get(f"{API}/proteins/{old.id}/wikipedia/").json()
+    assert r["found"] and r["title"] == "Tumor necrosis factor"
+    assert (
+        client.get(f"{API}/proteins/?slug=tnf").json()["results"][0]["id"] == old.id
+    )  # old URL still works
