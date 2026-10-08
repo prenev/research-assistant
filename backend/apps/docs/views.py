@@ -20,8 +20,5 @@ class DocPageViewSet(NotebookViewSet):
             "category", "last_edited_by"
         )
 
-    def perform_create(self, serializer):
-        serializer.save(last_edited_by=self.request.user)
-
-    def perform_update(self, serializer):
-        serializer.save(last_edited_by=self.request.user)
+    def save_kwargs(self):
+        return {"last_edited_by": self.request.user}

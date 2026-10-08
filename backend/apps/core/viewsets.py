@@ -8,6 +8,20 @@ from rest_framework.response import Response
 class NotebookViewSet(viewsets.ModelViewSet):
     """CRUD + soft delete + version history/restore for any BaseModel."""
 
+    draft_only_fields = {"draft_body"}
+
+    def save_kwargs(self):
+        return {}
+
+    def perform_create(self, serializer):
+        serializer.save(**self.save_kwargs())
+
+    def perform_update(self, serializer):
+        # Autosaves touch only the draft; keep them out of version history.
+        if set(self.request.data.keys()) <= self.draft_only_fields:
+            serializer.instance.skip_history_when_saving = True
+        serializer.save(**self.save_kwargs())
+
     def perform_destroy(self, instance):
         instance.delete()  # soft delete
 

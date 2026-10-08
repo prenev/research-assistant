@@ -3,12 +3,18 @@ from rest_framework.routers import DefaultRouter
 
 from apps.docs.views import DocCategoryViewSet, DocPageViewSet
 from apps.journal.views import LogPostViewSet
-from apps.literature.views import FindingViewSet, PaperViewSet, TagViewSet
+from apps.literature.views import (
+    FindingViewSet,
+    ImportConfirmView,
+    ImportPreviewView,
+    PaperViewSet,
+    TagViewSet,
+)
 from apps.project.views import DecisionViewSet, PipelineStageViewSet, ResultEntryViewSet
 from apps.proteins.views import ProteinViewSet
 from apps.synthesis.views import RequirementAssessmentViewSet, RequirementViewSet
 
-from . import views
+from . import tools, views
 
 router = DefaultRouter()
 router.register("papers", PaperViewSet, basename="paper")
@@ -36,5 +42,14 @@ urlpatterns = [
     path("sidebar/", views.SidebarView.as_view()),
     path("sidebar/reorder/", views.SidebarReorderView.as_view()),
     path("search-index/", views.SearchIndexView.as_view()),
+    path("trash/", tools.TrashView.as_view()),
+    path("uploads/", tools.UploadView.as_view()),
+    path("export/json/", tools.ExportJsonView.as_view()),
+    path("export/bibtex/", tools.ExportBibtexView.as_view()),
+    path("export/ieee/", tools.ExportIeeeView.as_view()),
+    path("import/bibtex/", ImportPreviewView.as_view(kind="bibtex")),
+    path("import/zotero-csv/", ImportPreviewView.as_view(kind="zotero")),
+    path("import/bibtex/confirm/", ImportConfirmView.as_view()),
+    path("import/zotero-csv/confirm/", ImportConfirmView.as_view()),
     path("", include(router.urls)),
 ]
