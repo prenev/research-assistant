@@ -83,6 +83,9 @@ class SiteSettings(models.Model):
     footer_text = models.CharField(max_length=300, blank=True)
     public_read = models.BooleanField(default=False)
     min_event_count_warning = models.PositiveIntegerField(default=10)
+    weekly_reading_goal = models.PositiveSmallIntegerField(
+        default=3, help_text="Papers to finish reading each week. 0 turns the goal off."
+    )
     updated_at = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
 

@@ -14,7 +14,7 @@ from apps.project.views import DecisionViewSet, PipelineStageViewSet, ResultEntr
 from apps.proteins.views import ProteinViewSet
 from apps.synthesis.views import RequirementAssessmentViewSet, RequirementViewSet
 
-from . import tools, views
+from . import tools, views, viz
 
 router = DefaultRouter()
 router.register("papers", PaperViewSet, basename="paper")
@@ -43,6 +43,12 @@ urlpatterns = [
     path("sidebar/reorder/", views.SidebarReorderView.as_view()),
     path("search-index/", views.SearchIndexView.as_view()),
     path("form-meta/<str:prefix>/", views.FormMetaView.as_view()),
+    path("viz/evidence-matrix/", viz.EvidenceMatrixView.as_view()),
+    path("viz/gap-map/", viz.GapMapView.as_view()),
+    path("viz/network/", viz.NetworkView.as_view()),
+    path("viz/timeline/", viz.TimelineView.as_view()),
+    path("viz/evidence-chain/", viz.EvidenceChainView.as_view()),
+    path("viz/dashboard/", viz.DashboardView.as_view()),
     path("trash/", tools.TrashView.as_view()),
     path("uploads/", tools.UploadView.as_view()),
     path("export/json/", tools.ExportJsonView.as_view()),
