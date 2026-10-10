@@ -120,3 +120,15 @@ Deviations from, or interpretations of, `PROMPT.md`.
 40. **Saves do not wait for a full refresh.** A save used to report success only after every visible
     list had re-fetched, including the slow Wikipedia lookup. It now reports straight away and refreshes
     in the background, and Wikipedia data is not refreshed after edits.
+41. **Charts use at most three hues plus shape.** Raised is orange, lowered is blue, predictive is aqua,
+    and every direction also has its own symbol (▲ ▼ ★ ◆ ○ ◇ ☆ ◐), because five hues failed the
+    colour-blind separation check for all pairs. Colour is never the only carrier of meaning.
+42. **Charts are plain SVG, not a charting library.** The matrix, gap map and timeline need per-mark
+    keyboard focus and exact control of exports; d3 is used only for force layout, zoom and scales.
+43. **Exports bake in theme colours.** CSS variables are resolved before an SVG or PNG is saved, so it
+    looks the same outside the site. HTML-only views keep an off-screen SVG copy for export.
+44. **Fake data is separate and marked.** `seed_fake` / `purge_fake` need `--yes`, mark everything
+    `[FAKE]`, and bypass version history. It exists only to test at scale; it never runs on deploy.
+45. **Motivation features are computed, not stored.** Streaks, the weekly ring, next actions and
+    milestones are derived from existing history at request time, so there is nothing to keep in sync.
+    The weekly goal is the only new setting.

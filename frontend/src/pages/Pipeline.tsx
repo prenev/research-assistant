@@ -7,6 +7,7 @@ import { useFeedback } from "../components/Feedback";
 import { ItemActions } from "../components/ItemActions";
 import { Markdown } from "../components/Markdown";
 import { PageShell } from "../components/PageShell";
+import { PipelineBoard } from "../features/viz/PipelineBoard";
 import { useForms } from "../forms/FormHost";
 import { useEditMode } from "../theme/EditMode";
 
@@ -19,8 +20,6 @@ export function PipelinePage() {
   const { toast } = useFeedback();
   const qc = useQueryClient();
   const [dragId, setDragId] = useState<number | null>(null);
-  const done = stages?.filter((s) => s.status === "done").length ?? 0;
-  const pct = stages?.length ? Math.round((100 * done) / stages.length) : 0;
 
   const reorder = async (ids: number[]) => {
     qc.setQueryData(
@@ -78,86 +77,89 @@ export function PipelinePage() {
         )
       }
     >
-      <div className="progress-wrap" aria-label={`Pipeline progress ${pct}%`}>
-        <div className="progress">
-          <div className="progress__bar" style={{ width: `${pct}%` }} />
-        </div>
-        <span>
-          {pct}% done ({done} of {stages?.length ?? 0})
-        </span>
-      </div>
-      {isLoading ? (
-        <p>Loading…</p>
-      ) : (
-        <ol className="stage-list">
-          {stages?.map((s, i) => (
-            <li
-              key={s.id}
-              className={`stage card padding--md${dragId === s.id ? " stage--drag" : ""}`}
-              draggable={editing}
-              onDragStart={() => setDragId(s.id)}
-              onDragEnd={() => setDragId(null)}
-              onDragOver={(e) => editing && e.preventDefault()}
-              onDrop={(e) => drop(e, s.id)}
-            >
-              <div className="stage__head">
-                <strong>
-                  {i + 1}. {s.title}
-                </strong>
-                {editing ? (
-                  <select
-                    aria-label={`Status of ${s.title}`}
-                    className="field field--inline"
-                    value={s.status}
-                    onChange={(e) => setStatus(s, e.target.value)}
-                  >
-                    {meta?.status?.choices?.map((c) => (
-                      <option key={c.value} value={c.value}>
-                        {c.display_name}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <Badge value={s.status} />
-                )}
-                {editing && (
-                  <span className="sidebar-edit">
-                    <button
-                      type="button"
-                      className="clean-btn"
-                      aria-label={`Move ${s.title} up`}
-                      onClick={() => step(i, -1)}
+      <PipelineBoard />
+      <details className="margin-top--lg" open={editing}>
+        <summary>
+          <strong>Order and details</strong>{" "}
+          <span className="table-sub">
+            {editing
+              ? "Reorder, edit or add steps"
+              : "Turn on edit mode to reorder or edit"}
+          </span>
+        </summary>
+        {isLoading ? (
+          <p>Loading…</p>
+        ) : (
+          <ol className="stage-list">
+            {stages?.map((s, i) => (
+              <li
+                key={s.id}
+                className={`stage card padding--md${dragId === s.id ? " stage--drag" : ""}`}
+                draggable={editing}
+                onDragStart={() => setDragId(s.id)}
+                onDragEnd={() => setDragId(null)}
+                onDragOver={(e) => editing && e.preventDefault()}
+                onDrop={(e) => drop(e, s.id)}
+              >
+                <div className="stage__head">
+                  <strong>
+                    {i + 1}. {s.title}
+                  </strong>
+                  {editing ? (
+                    <select
+                      aria-label={`Status of ${s.title}`}
+                      className="field field--inline"
+                      value={s.status}
+                      onChange={(e) => setStatus(s, e.target.value)}
                     >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      className="clean-btn"
-                      aria-label={`Move ${s.title} down`}
-                      onClick={() => step(i, 1)}
-                    >
-                      ↓
-                    </button>
-                  </span>
-                )}
-                <ItemActions model="pipelineStage" item={s} />
-              </div>
-              {(s.started_on || s.completed_on) && (
-                <small>
-                  {s.started_on && `Started ${s.started_on}`}
-                  {s.completed_on && ` · Completed ${s.completed_on}`}
-                </small>
-              )}
-              {s.blocked_reason && (
-                <div className="alert alert--danger margin-top--sm">
-                  Blocked: {s.blocked_reason}
+                      {meta?.status?.choices?.map((c) => (
+                        <option key={c.value} value={c.value}>
+                          {c.display_name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <Badge value={s.status} />
+                  )}
+                  {editing && (
+                    <span className="sidebar-edit">
+                      <button
+                        type="button"
+                        className="clean-btn"
+                        aria-label={`Move ${s.title} up`}
+                        onClick={() => step(i, -1)}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        className="clean-btn"
+                        aria-label={`Move ${s.title} down`}
+                        onClick={() => step(i, 1)}
+                      >
+                        ↓
+                      </button>
+                    </span>
+                  )}
+                  <ItemActions model="pipelineStage" item={s} />
                 </div>
-              )}
-              {s.description && <Markdown source={s.description} />}
-            </li>
-          ))}
-        </ol>
-      )}
+                {(s.started_on || s.completed_on) && (
+                  <small>
+                    {s.started_on && `Started ${s.started_on}`}
+                    {s.completed_on && ` · Completed ${s.completed_on}`}
+                  </small>
+                )}
+                {s.blocked_reason && (
+                  <div className="alert alert--danger margin-top--sm">
+                    Blocked: {s.blocked_reason}
+                  </div>
+                )}
+                {s.description && <Markdown source={s.description} />}
+              </li>
+            ))}
+          </ol>
+        )}
+      </details>
     </PageShell>
   );
 }

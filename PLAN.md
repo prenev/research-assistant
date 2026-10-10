@@ -23,7 +23,7 @@ Playwright flows 1–2.
 Paper list (table and cards), paper and protein pages, blog-style log with tags and archive,
 Ctrl-K search with Fuse.js. Playwright flow 3.
 
-## Phase 5: Visualisations
+## Phase 5: Visualisations (done)
 Evidence matrix, gap map, network, timeline, evidence chain, pipeline board, results panel, embeds,
 PNG/SVG export, fake-data generator. `viz/*` endpoints. Playwright flow 4.
 

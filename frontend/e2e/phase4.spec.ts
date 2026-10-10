@@ -50,9 +50,12 @@ test("flow 3: write a log post with a viz embed and a citation, publish, and see
 
   await page.goto("/log");
   await expect(
-    page.getByRole("main").getByRole("link", { name: title }),
+    page.getByRole("main").getByRole("link", { name: title, exact: true }),
   ).toBeVisible();
-  await page.getByRole("main").getByRole("link", { name: title }).click();
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: title, exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: title, level: 1 }),
   ).toBeVisible();
@@ -63,12 +66,10 @@ test("flow 3: write a log post with a viz embed and a citation, publish, and see
   await expect(
     page.getByRole("tooltip").filter({ hasText: "Cited paper for flow 3" }),
   ).toBeVisible();
-  await expect(page.locator(".viz-placeholder")).toContainText(
-    "evidence-matrix",
-  );
-  await expect(page.locator(".viz-placeholder")).toContainText(
-    "population=general_population",
-  );
+  // the embed now renders the real chart, with its filter applied
+  await expect(
+    page.getByRole("region", { name: "Evidence matrix" }),
+  ).toBeVisible();
 });
 
 test("search finds new items straight after creation, with keyboard navigation", async ({

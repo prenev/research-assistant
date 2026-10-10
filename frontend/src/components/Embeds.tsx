@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { usePapers, useProteins } from "../api/hooks";
 import type { PaperLite } from "../api/types";
@@ -92,14 +93,13 @@ function ProteinEmbed({ slug }: { slug: string }) {
   return <ProteinChip slug={slug} />;
 }
 
+const VizByName = lazy(() => import("../features/viz/VizByName"));
+
 function VizEmbed({ arg }: { arg: string }) {
-  const [name, ...params] = arg.split(/\s+/);
   return (
-    <div className="viz-placeholder" role="note">
-      <strong>{name}</strong>
-      {params.length > 0 && <code>{params.join(" ")}</code>}
-      <span>Visualisations arrive in Phase 5.</span>
-    </div>
+    <Suspense fallback={<div className="viz-empty">Loading chart…</div>}>
+      <VizByName arg={arg} />
+    </Suspense>
   );
 }
 

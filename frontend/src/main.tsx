@@ -6,6 +6,7 @@ import "infima/dist/css/default/default.css";
 import { api } from "./api/client";
 import { App } from "./App";
 import "./styles/custom.css";
+import "./styles/viz.css";
 import { FeedbackProvider } from "./components/Feedback";
 import { SearchProvider } from "./components/Search";
 import { FormHost } from "./forms/FormHost";

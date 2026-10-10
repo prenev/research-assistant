@@ -39,6 +39,7 @@ export function SettingsPage() {
       form.append(k, v[k] ?? "");
     form.append("public_read", String(v.public_read));
     form.append("min_event_count_warning", String(v.min_event_count_warning));
+    form.append("weekly_reading_goal", String(v.weekly_reading_goal));
     if (logo) form.append("logo", logo);
     setErrors({});
     try {
@@ -160,6 +161,20 @@ export function SettingsPage() {
             }
           />,
           "Results with fewer events need an explicit data-policy confirmation.",
+        )}
+        {row(
+          "weekly_reading_goal",
+          "Weekly reading goal",
+          <input
+            id="s-weekly_reading_goal"
+            type="number"
+            min={0}
+            max={50}
+            className="field"
+            value={v.weekly_reading_goal}
+            onChange={(e) => set("weekly_reading_goal", Number(e.target.value))}
+          />,
+          "Papers you aim to finish each week. It fills the ring on the home page. 0 turns it off.",
         )}
         <div className="form-row">
           <label className="checkbox-line">

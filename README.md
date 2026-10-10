@@ -58,9 +58,6 @@ scrollspy, prev/next, category card pages, and a Markdown renderer for admonitio
 highlighted code blocks, tabs, details, and the `{{cite}}`, `{{paper}}`, `{{protein}}` and `{{viz}}`
 embeds. Raw HTML in Markdown is never rendered.
 
-Not yet built: search (Phase 4), edit mode and quick add (Phase 3), the home page's mini evidence
-matrix (Phase 5). Those controls are visible but disabled or absent.
-
 ## Editing (Phase 3)
 
 Log in, then use the **pencil** in the navbar to turn on edit mode and **＋** for Quick add.
@@ -88,8 +85,6 @@ Log in, then use the **pencil** in the navbar to turn on edit mode and **＋** f
 make e2e          # Playwright on a throwaway database (start with: cd frontend && npm install)
 ```
 
-Not yet in the UI: the Log pages (Phase 4), search (Phase 4), visualisations (Phase 5), the
-pipeline kanban board (Phase 5).
 
 ## Papers, proteins, log and search (Phase 4)
 
@@ -123,3 +118,26 @@ pipeline kanban board (Phase 5).
 - Reads need login unless **Site settings → public read** is on. Writes always need login.
 - Results with fewer events than the configured minimum are rejected unless
   `confirmed_permitted` is set (data policy).
+
+## Visualisations and motivation (Phase 5)
+
+Under **Visualise**: evidence matrix (proteins by papers, direction shown by colour *and* shape),
+gap map (where the field has nothing yet, and the cell this project fills), network, timeline,
+evidence chain (the five requirements, editable per paper) and the results panel (forest plot and the
+primary comparison, with a note on whether the interval excludes zero). Every chart has filters, a
+legend, a table view, tooltips and keyboard support, and exports as SVG or PNG. Any chart can be
+embedded in a doc or log post with `{{viz:evidence-matrix population=general_population}}`.
+
+The **pipeline** is a board (drag a step, or use its "Move to" menu) with a progress bar and a timeline.
+
+The **home page** (when logged in) shows next best actions, a weekly reading goal ring (set it in
+Settings), an activity streak and calendar, milestones, and evidence agreement per protein.
+
+To try the charts at scale with clearly marked fake data (never use it for real work):
+
+```bash
+cd backend
+python manage.py seed_fake --yes     # titles start with [FAKE], tagged fake-data
+python manage.py purge_fake --yes    # removes all of it
+```
+

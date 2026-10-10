@@ -1,9 +1,10 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { useMe } from "./api/hooks";
 import { DocCategoryView, DocPageView, DocsIndex } from "./pages/DocPages";
 import { Home } from "./pages/Home";
 import { DecisionsPage } from "./pages/Decisions";
-import { Login, NotFound, Placeholder } from "./pages/Misc";
+import { Login, NotFound } from "./pages/Misc";
 import {
   LogArchivePage,
   LogListPage,
@@ -16,6 +17,8 @@ import { PipelinePage } from "./pages/Pipeline";
 import { ProteinPage, ProteinsPage } from "./pages/Proteins";
 import { SettingsPage } from "./pages/Settings";
 import { TrashPage } from "./pages/Trash";
+
+const Visualise = lazy(() => import("./pages/Visualise"));
 
 export function App() {
   const { data: me, isLoading } = useMe();
@@ -44,7 +47,15 @@ export function App() {
       <Route path="/log/:slug" element={<LogPostPage />} />
       <Route
         path="/visualise/*"
-        element={<Placeholder title="Visualise" phase={5} />}
+        element={
+          <Suspense
+            fallback={
+              <div className="container margin-vert--lg">Loading charts…</div>
+            }
+          >
+            <Visualise />
+          </Suspense>
+        }
       />
       <Route path="*" element={<NotFound />} />
     </Routes>

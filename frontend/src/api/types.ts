@@ -7,6 +7,7 @@ export interface SiteSettings {
   footer_text: string;
   public_read: boolean;
   min_event_count_warning: number;
+  weekly_reading_goal: number;
 }
 export interface Me {
   authenticated: boolean;

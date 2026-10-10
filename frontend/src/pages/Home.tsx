@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { useSettings, useSidebar, useStats } from "../api/hooks";
+import { useMe, useSettings, useSidebar, useStats } from "../api/hooks";
+import { Dashboard } from "../features/dashboard/Dashboard";
 import { Layout } from "../theme/Layout";
 import { flattenPages } from "../theme/DocSidebar";
 
@@ -7,6 +8,7 @@ export function Home() {
   const { data: s } = useSettings();
   const { data: stats } = useStats();
   const { data: sidebar } = useSidebar();
+  const { data: me } = useMe();
   const first = sidebar && flattenPages(sidebar)[0];
   const cards = [
     {
@@ -56,18 +58,21 @@ export function Home() {
         </div>
       </header>
       <main>
+        {me?.authenticated && <Dashboard />}
         <section className="container features">
-          <div className="row">
-            {cards.map((c) => (
-              <div key={c.title} className="col col--4">
-                <Link to={c.to} className="card padding--lg feature-card">
-                  <div className="feature-card__value">{c.value}</div>
-                  <h3>{c.title}</h3>
-                  <p>{c.note}</p>
-                </Link>
-              </div>
-            ))}
-          </div>
+          {!me?.authenticated && (
+            <div className="row">
+              {cards.map((c) => (
+                <div key={c.title} className="col col--4">
+                  <Link to={c.to} className="card padding--lg feature-card">
+                    <div className="feature-card__value">{c.value}</div>
+                    <h3>{c.title}</h3>
+                    <p>{c.note}</p>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="margin-top--lg">
             <h2>Recently edited</h2>
             {stats?.recently_edited.length ? (
