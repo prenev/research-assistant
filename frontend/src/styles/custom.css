@@ -1716,3 +1716,206 @@ a.tag-pill:hover {
   color: var(--ifm-color-emphasis-600);
   font-size: 0.85rem;
 }
+
+/* Coloured tags */
+.tag-pill--coloured {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-color: color-mix(in srgb, var(--tag) 55%, transparent);
+  background: color-mix(in srgb, var(--tag) 14%, transparent);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.4;
+}
+.tag-pill__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--tag);
+}
+a.tag-pill--coloured:hover,
+button.tag-pill--coloured:hover {
+  border-color: var(--tag);
+  color: var(--ifm-font-color-base);
+  background: color-mix(in srgb, var(--tag) 24%, transparent);
+}
+.tag-pill--coloured.is-active {
+  background: color-mix(in srgb, var(--tag) 32%, transparent);
+  border-color: var(--tag);
+  box-shadow: 0 0 0 2px var(--tag);
+  font-weight: 600;
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+.swatch {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.swatch.is-active {
+  border-color: var(--ifm-font-color-base);
+  box-shadow: 0 0 0 2px var(--ifm-background-color);
+}
+.merge-row {
+  display: flex;
+  gap: 0.5rem;
+}
+.tag-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0.75rem 0 1rem;
+}
+.tag-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+.tagged-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.tagged-list li {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+.tagged-list__tags {
+  margin-left: 0.5rem;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.related-tags {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.icon-button {
+  border: 0;
+  background: transparent;
+  color: var(--ifm-color-emphasis-600);
+  cursor: pointer;
+  padding: 0 0.25rem;
+  border-radius: 4px;
+}
+.icon-button:hover {
+  color: var(--ifm-color-primary);
+  background: var(--ifm-color-emphasis-200);
+}
+.label-like {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.tag-picker .tags {
+  align-items: center;
+}
+.tag-picker__box {
+  position: relative;
+  display: inline-block;
+}
+.tag-picker__list {
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  left: 0;
+  min-width: 14rem;
+  margin: 0.2rem 0 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  box-shadow: var(--ifm-global-shadow-md);
+}
+.tag-picker__list li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.tag-picker__list li.is-active,
+.tag-picker__list li:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+.tag-picker__list .tag-pill__dot {
+  background: var(--tag);
+}
+
+/* Links between notes */
+.wikilink {
+  color: var(--ifm-color-primary);
+  background: color-mix(in srgb, var(--ifm-color-primary) 10%, transparent);
+  border: 0;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--ifm-color-primary) 50%, transparent);
+  border-radius: 3px;
+  padding: 0 0.2em;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.wikilink:hover {
+  background: color-mix(in srgb, var(--ifm-color-primary) 20%, transparent);
+  text-decoration: none;
+}
+.wikilink--missing {
+  color: var(--ifm-color-warning-darkest);
+  background: color-mix(in srgb, var(--ifm-color-warning) 14%, transparent);
+  border-bottom: 1px dashed var(--ifm-color-warning-darker);
+}
+.backlinks {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+}
+.backlinks h2 {
+  font-size: 1.1rem;
+}
+.backlinks h3 {
+  font-size: 0.95rem;
+  margin: 1rem 0 0.25rem;
+}
+.backlinks ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.backlinks li {
+  margin-bottom: 0.5rem;
+}
+.backlinks blockquote {
+  margin: 0.2rem 0 0;
+  padding: 0.1rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-700);
+  border-left: 3px solid var(--ifm-color-emphasis-300);
+}
+.legend-toggle {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+.legend-toggle:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+.legend-toggle.is-off {
+  opacity: 0.4;
+  text-decoration: line-through;
+}

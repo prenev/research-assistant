@@ -141,3 +141,19 @@ python manage.py seed_fake --yes     # titles start with [FAKE], tagged fake-dat
 python manage.py purge_fake --yes    # removes all of it
 ```
 
+## Tags and connections
+
+**Tags** work on papers, proteins, docs, log posts and decisions. Each has a colour (assigned
+automatically, changeable) and an optional description. Add one from any item with **＋ Tag**: pick an
+existing tag or type a new name and press Enter. The **Tags** page lists them all with counts; pick one
+or several to see everything that carries *all* of them across every kind of item, and narrow further
+with the tags those results share. Rename, recolour, merge or delete a tag from there.
+
+**Links between notes** work like Obsidian. Type `@` in the editor (or write `[[Page title]]` or
+`[[Page title|label]]`) to link to any doc, paper, protein, log post or decision. A link to a page that
+does not exist yet shows dashed; click it to create the page. Every page has a **Connections** panel:
+what links here, what it links to, and plain-text mentions of its name that are not linked yet. The
+**Notes graph** (Visualise) draws all of it, shaped by kind and coloured by first tag, with wanted
+pages and unconnected notes listed beneath. Embed it with `{{viz:notes}}`. Links are worked out from
+the text each time, so nothing goes stale when titles change.
+

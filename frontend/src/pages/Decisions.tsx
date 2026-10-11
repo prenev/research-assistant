@@ -2,6 +2,7 @@ import { useList } from "../api/crud";
 import { Badge } from "../components/Badge";
 import { ItemActions } from "../components/ItemActions";
 import { Markdown } from "../components/Markdown";
+import { TagPicker } from "../components/TagPicker";
 import { PageShell } from "../components/PageShell";
 import { useForms } from "../forms/FormHost";
 import { useEditMode } from "../theme/EditMode";
@@ -49,6 +50,7 @@ export function DecisionsPage() {
               )}{" "}
               <small>{d.date ?? "date not recorded"}</small>
             </p>
+            <TagPicker endpoint="decisions" item={d} />
             {d.decision && <p>{d.decision}</p>}
             {d.rationale && <Markdown source={d.rationale} />}
           </section>

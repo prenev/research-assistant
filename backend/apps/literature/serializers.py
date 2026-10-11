@@ -1,14 +1,45 @@
+import re
+
 from rest_framework import serializers
 
 from .models import Finding, Paper, Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
+    counts = serializers.SerializerMethodField()
+    total = serializers.SerializerMethodField()
+
     class Meta:
         model = Tag
         fields = "__all__"
         read_only_fields = ["deleted_at"]
-        extra_kwargs = {"slug": {"required": False}}
+        extra_kwargs = {"slug": {"required": False}, "colour": {"required": False}}
+
+    def validate_colour(self, value):
+        if value and not re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+            raise serializers.ValidationError("Use a hex colour such as #2a78d6.")
+        return value.lower()
+
+    def validate_name(self, value):
+        value = value.strip().lstrip("#")
+        clash = Tag.objects.filter(name__iexact=value).exclude(
+            pk=self.instance.pk if self.instance else None
+        )
+        if clash.exists():
+            raise serializers.ValidationError("A tag with this name already exists.")
+        return value
+
+    def get_counts(self, obj):
+        return {
+            "papers": getattr(obj, "n_papers", 0),
+            "proteins": getattr(obj, "n_proteins", 0),
+            "docs": getattr(obj, "n_docs", 0),
+            "log": getattr(obj, "n_log", 0),
+            "decisions": getattr(obj, "n_decisions", 0),
+        }
+
+    def get_total(self, obj):
+        return sum(self.get_counts(obj).values())
 
 
 class PaperSerializer(serializers.ModelSerializer):

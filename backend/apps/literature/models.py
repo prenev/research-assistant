@@ -139,10 +139,17 @@ def validate_fluids(value):
         raise ValidationError(f"Each fluid must be one of: {', '.join(sorted(valid))}.")
 
 
+TAG_COLOURS = [
+    "#2a78d6", "#eb6834", "#1baf7a", "#8a5cd6", "#d6457a", "#c79a1c",
+    "#1f9bb5", "#6b8e23", "#c2463d", "#5c6bc0", "#8d6e63", "#607d8b",
+]  # fmt: skip
+
+
 class Tag(BaseModel):
     name = models.CharField(max_length=60)
     slug = models.SlugField(max_length=80, unique=True, blank=True)
     colour = models.CharField(max_length=7, blank=True)
+    description = models.CharField(max_length=300, blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -150,6 +157,9 @@ class Tag(BaseModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = unique_slug(self, self.name, 80)
+        if not self.colour:
+            # A stable colour per tag, so every tag is recognisable at a glance from day one.
+            self.colour = TAG_COLOURS[sum(map(ord, self.slug)) % len(TAG_COLOURS)]
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -1,4 +1,5 @@
 import { Link, Route, Routes } from "react-router-dom";
+import { NoteGraph } from "../features/links/NoteGraph";
 import { EvidenceChain } from "../features/viz/EvidenceChain";
 import { EvidenceMatrix } from "../features/viz/EvidenceMatrix";
 import { FilterPanel, useVizFilters } from "../features/viz/filters";
@@ -33,6 +34,11 @@ export const VIZ_LIST = [
     to: "evidence-chain",
     title: "Evidence chain",
     blurb: "Does any paper meet all five requirements?",
+  },
+  {
+    to: "notes",
+    title: "Notes graph",
+    blurb: "How your docs, papers, proteins and log posts link together.",
   },
   {
     to: "results",
@@ -188,6 +194,14 @@ export default function Visualise() {
         element={
           <Shell title="Evidence chain">
             <EvidenceChain />
+          </Shell>
+        }
+      />
+      <Route
+        path="notes"
+        element={
+          <Shell title="Notes graph">
+            <NoteGraph />
           </Shell>
         }
       />

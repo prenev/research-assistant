@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { usePapers, useProteins } from "../api/hooks";
+import { TYPE_LABEL, useLinkIndex } from "../features/links/data";
 import { Modal } from "../components/Modal";
 
 export const VIZ_NAMES = [
@@ -9,6 +10,7 @@ export const VIZ_NAMES = [
   "timeline",
   "evidence-chain",
   "pipeline",
+  "notes",
   "results",
 ];
 
@@ -18,12 +20,13 @@ export function EmbedPicker({
   onPick,
   onClose,
 }: {
-  kind: "cite" | "paper" | "protein" | "viz";
+  kind: "cite" | "paper" | "protein" | "viz" | "link";
   onPick: (arg: string) => void;
   onClose: () => void;
 }) {
   const { data: papers } = usePapers();
   const { data: proteins } = useProteins();
+  const { data: linkIndex } = useLinkIndex();
   const [q, setQ] = useState("");
   const [chosen, setChosen] = useState<string[]>([]);
   const [params, setParams] = useState("");
@@ -36,6 +39,12 @@ export function EmbedPicker({
         label: p.name,
         hint: p.category,
       }));
+    if (kind === "link")
+      return (linkIndex ?? []).map((i) => ({
+        value: i.title,
+        label: i.title,
+        hint: `${TYPE_LABEL[i.type]} · ${i.context}`,
+      }));
     if (kind === "viz")
       return VIZ_NAMES.map((v) => ({ value: v, label: v, hint: "" }));
     return (papers ?? [])
@@ -45,7 +54,7 @@ export function EmbedPicker({
         label: `${p.short_label}${kind === "cite" ? ` [${p.citation_number}]` : ""}`,
         hint: p.title,
       }));
-  }, [kind, papers, proteins]);
+  }, [kind, papers, proteins, linkIndex]);
   const shown = options.filter(
     (o) => !needle || `${o.label} ${o.hint}`.toLowerCase().includes(needle),
   );
@@ -55,6 +64,7 @@ export function EmbedPicker({
     paper: "Insert paper chip",
     protein: "Insert protein chip",
     viz: "Insert visualisation",
+    link: "Link to a note",
   };
   const finish = (values: string[]) => {
     if (!values.length) return;

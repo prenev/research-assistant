@@ -58,8 +58,8 @@ export function RelationPicker({
     setErr("");
     try {
       const o = await post<Obj>(`/${def.endpoint}/`, def.create(text.trim()));
-      await qc.invalidateQueries({ queryKey: ["picker", def.endpoint] });
-      choose(o.id);
+      choose(o.id); // select straight away; the option list refreshes in the background
+      void qc.invalidateQueries({ queryKey: ["picker", def.endpoint] });
     } catch {
       setErr("Could not create it. Add it from its own form instead.");
     } finally {

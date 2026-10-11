@@ -17,6 +17,8 @@ import { Markdown } from "../components/Markdown";
 import { extractToc } from "../lib/markdown";
 import { DocSidebar, flattenPages } from "../theme/DocSidebar";
 import { Breadcrumbs, Paginator, Toc } from "../theme/DocLayout";
+import { TagPicker } from "../components/TagPicker";
+import { Backlinks } from "../features/links/Backlinks";
 import { Layout } from "../theme/Layout";
 
 function DocsShell({
@@ -156,7 +158,9 @@ export function DocPageView() {
                       <h1>{page.title}</h1>
                     </header>
                   )}
+                  <TagPicker endpoint="doc-pages" item={page} />
                   <Markdown source={page.body} />
+                  <Backlinks url={`/docs/${page.slug}`} />
                 </article>
               )}
               <footer className="doc-footer">

@@ -1,6 +1,13 @@
 import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { usePapers, useProteins } from "../api/hooks";
+import { useMe, usePapers, useProteins } from "../api/hooks";
+import {
+  resolveLink,
+  splitWikilink,
+  TYPE_LABEL,
+  useLinkIndex,
+} from "../features/links/data";
+import { useNewPage } from "../lib/useNewPage";
 import type { PaperLite } from "../api/types";
 
 export function PaperChip({
@@ -103,8 +110,48 @@ function VizEmbed({ arg }: { arg: string }) {
   );
 }
 
+/** [[Title]] or [[Title|label]]: a link to another note. A missing one offers to create it. */
+function WikiLink({ arg }: { arg: string }) {
+  const { data: index } = useLinkIndex();
+  const { data: me } = useMe();
+  const { newDocPage } = useNewPage();
+  const { target, label } = splitWikilink(arg);
+  const hit = resolveLink(index, target);
+  if (!index) return <span className="wikilink">{label}</span>;
+  if (hit)
+    return (
+      <span className="hovercard-wrap">
+        <Link className="wikilink" to={hit.url}>
+          {label}
+        </Link>
+        <span className="hovercard" role="tooltip">
+          <strong>{hit.title}</strong>
+          <span className="hovercard__meta">
+            {TYPE_LABEL[hit.type]} · {hit.context}
+          </span>
+        </span>
+      </span>
+    );
+  return me?.authenticated ? (
+    <button
+      type="button"
+      className="wikilink wikilink--missing"
+      title={`No page called “${target}” yet. Click to create it.`}
+      onClick={() => newDocPage(undefined, target)}
+    >
+      {label}
+    </button>
+  ) : (
+    <span className="wikilink wikilink--missing" title="No such page yet">
+      {label}
+    </span>
+  );
+}
+
 export function Embed({ kind, arg }: { kind: string; arg: string }) {
   switch (kind) {
+    case "link":
+      return <WikiLink arg={arg} />;
     case "cite":
       return <Cite arg={arg} />;
     case "paper":

@@ -23,6 +23,9 @@ import {
   tagCounts,
 } from "../lib/log";
 import { Layout } from "../theme/Layout";
+import { TagChip } from "../components/TagChip";
+import { TagPicker } from "../components/TagPicker";
+import { Backlinks } from "../features/links/Backlinks";
 import { useEditMode } from "../theme/EditMode";
 import { DocEditor } from "./DocEditor";
 
@@ -50,9 +53,7 @@ function TagList({
         const t = tagById.get(id);
         return t ? (
           <li key={id}>
-            <Link className="tag-pill" to={`/log/tags/${t.slug}`}>
-              {t.name}
-            </Link>
+            <TagChip tag={t as never} to={`/tags?tags=${t.slug}`} />
           </li>
         ) : null;
       })}
@@ -214,7 +215,7 @@ export function LogListPage() {
 
 export function LogPostPage() {
   const { slug } = useParams();
-  const { posts, loading, tagById } = useLogData();
+  const { posts, loading } = useLogData();
   const { editing } = useEditMode();
   const navigate = useNavigate();
   const [editingBody, setEditingBody] = useState(false);
@@ -303,7 +304,7 @@ export function LogPostPage() {
           <Markdown source={fullBody(post.body)} />
         )}
         <footer className="margin-vert--lg">
-          <TagList ids={post.tags} tagById={tagById} />
+          <TagPicker endpoint="log-posts" item={post as never} />
           {(linked.papers.length > 0 ||
             linked.proteins.length > 0 ||
             linked.stages.length > 0) && (
@@ -329,6 +330,7 @@ export function LogPostPage() {
             </div>
           )}
         </footer>
+        <Backlinks url={`/log/${post.slug}`} />
       </article>
       {(newer || older) && (
         <nav className="pagination-nav" aria-label="Blog post page navigation">

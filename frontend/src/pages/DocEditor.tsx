@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import { useSaveMutation } from "../api/crud";
 import { useFeedback } from "../components/Feedback";
+import { TagPicker } from "../components/TagPicker";
 import { HistoryPanel } from "../components/HistoryPanel";
 import { RichEditor, type RichEditorHandle } from "../editor/LazyRichEditor";
 
@@ -22,6 +23,7 @@ export interface Editable {
   title: string;
   body: string;
   draft_body: string;
+  tags?: number[];
 }
 
 /**
@@ -206,6 +208,7 @@ export function DocEditor({
           }
         }}
       />
+      <TagPicker endpoint={endpoint} item={page} />
       <RichEditor
         ref={editorRef}
         key={seed}

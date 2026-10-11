@@ -16,10 +16,12 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Network", to: "/visualise/network" },
       { label: "Timeline", to: "/visualise/timeline" },
       { label: "Evidence Chain", to: "/visualise/evidence-chain" },
+      { label: "Notes graph", to: "/visualise/notes" },
       { label: "Results", to: "/visualise/results" },
     ],
   },
   { label: "Pipeline", to: "/pipeline" },
   { label: "Decisions", to: "/decisions" },
   { label: "Log", to: "/log" },
+  { label: "Tags", to: "/tags" },
 ];

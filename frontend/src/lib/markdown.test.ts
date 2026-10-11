@@ -6,6 +6,21 @@ import {
   transformEmbeds,
 } from "./markdown";
 
+describe("wikilinks", () => {
+  it("turns [[Title]] and [[Title|label]] into link embeds", () => {
+    expect(
+      transformEmbeds("see [[Cohort definition]] and [[NfL|the marker]]"),
+    ).toBe(
+      "see [link](#embed:link:Cohort%20definition) and [link](#embed:link:NfL%7Cthe%20marker)",
+    );
+  });
+  it("leaves code and ordinary brackets alone", () => {
+    expect(transformEmbeds("`[[x]]` and [a](b) and [1]")).toBe(
+      "`[[x]]` and [a](b) and [1]",
+    );
+  });
+});
+
 describe("transformEmbeds", () => {
   it("rewrites shortcodes", () => {
     expect(transformEmbeds("see {{cite:1,2}} and {{protein:tnf-alpha}}")).toBe(

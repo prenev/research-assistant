@@ -35,7 +35,7 @@ export function useNewPage() {
   };
 
   return {
-    newDocPage: (categoryId?: number) =>
+    newDocPage: (categoryId?: number, title = "Untitled") =>
       run("/docs", ["sidebar"], async () => {
         let category = categoryId;
         if (!category) {
@@ -49,7 +49,7 @@ export function useNewPage() {
         }
         if (!category) throw new Error("no category");
         return post<Created>("/doc-pages/", {
-          title: "Untitled",
+          title,
           category,
           body: "",
         });

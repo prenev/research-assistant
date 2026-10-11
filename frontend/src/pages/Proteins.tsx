@@ -9,6 +9,8 @@ import { Badge, humanise } from "../components/Badge";
 import { ItemActions } from "../components/ItemActions";
 import { NoteSection } from "../components/NoteSection";
 import { PageShell } from "../components/PageShell";
+import { Backlinks } from "../features/links/Backlinks";
+import { TagPicker } from "../components/TagPicker";
 import { useForms } from "../forms/FormHost";
 import { useEditMode } from "../theme/EditMode";
 
@@ -262,6 +264,7 @@ export function ProteinPage() {
         )}
         {protein.on_olink_panel && <> · Panel: {protein.on_olink_panel}</>}
       </p>
+      <TagPicker endpoint="proteins" item={protein} />
       {protein.exclusion_reason && (
         <div className="alert alert--danger">
           Excluded: {protein.exclusion_reason}
@@ -337,6 +340,7 @@ export function ProteinPage() {
           </ul>
         </>
       )}
+      <Backlinks url={`/proteins/${protein.slug}`} />
     </PageShell>
   );
 }

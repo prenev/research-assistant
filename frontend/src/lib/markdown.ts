@@ -16,7 +16,7 @@ function splitCode(text: string): { code: boolean; text: string }[] {
 }
 
 export interface Embed {
-  kind: "cite" | "paper" | "protein" | "viz";
+  kind: "cite" | "paper" | "protein" | "viz" | "link";
   arg: string;
 }
 
@@ -29,13 +29,19 @@ export function transformEmbeds(text: string): string {
     .map((seg) =>
       seg.code
         ? seg.text
-        : seg.text.replace(
-            /\{\{\s*(cite|paper|protein|viz)\s*:\s*([^}]*?)\s*\}\}/g,
-            (_m, kind, arg) => {
+        : seg.text
+            // [[Title]] and [[Title|label]] are links between notes
+            .replace(/\[\[([^\[\]\n]+?)\]\]/g, (_m, arg) => {
               const enc = encodeURIComponent(arg);
-              return `[${kind}](#embed:${kind}:${enc})`;
-            },
-          ),
+              return `[link](#embed:link:${enc})`;
+            })
+            .replace(
+              /\{\{\s*(cite|paper|protein|viz)\s*:\s*([^}]*?)\s*\}\}/g,
+              (_m, kind, arg) => {
+                const enc = encodeURIComponent(arg);
+                return `[${kind}](#embed:${kind}:${enc})`;
+              },
+            ),
     )
     .join("");
 }

@@ -1,3 +1,4 @@
+import { NoteGraph } from "../links/NoteGraph";
 import { EvidenceChain } from "./EvidenceChain";
 import { EvidenceMatrix } from "./EvidenceMatrix";
 import { GapMap } from "./GapMap";
@@ -61,11 +62,13 @@ export default function VizByName({ arg }: { arg: string }) {
       return <PipelineBoard embedded readOnly />;
     case "results":
       return <ResultsPanel embedded />;
+    case "notes":
+      return <NoteGraph embedded />;
     default:
       return (
         <div className="alert alert--warning" role="note">
           Unknown visualisation “{name}”. Try evidence-matrix, gap-map, network,
-          timeline, evidence-chain, pipeline or results.
+          timeline, evidence-chain, pipeline, notes or results.
         </div>
       );
   }

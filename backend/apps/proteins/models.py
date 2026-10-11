@@ -42,6 +42,7 @@ class Protein(BaseModel):
     rationale = models.TextField(blank=True)
     exclusion_reason = models.CharField(max_length=200, blank=True)
     notes = models.TextField(blank=True)
+    tags = models.ManyToManyField("literature.Tag", blank=True, related_name="proteins")
 
     class Meta:
         ordering = ["name"]

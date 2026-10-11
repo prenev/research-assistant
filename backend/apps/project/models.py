@@ -68,6 +68,7 @@ class Decision(BaseModel):
     superseded_by = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.SET_NULL, related_name="supersedes"
     )
+    tags = models.ManyToManyField("literature.Tag", blank=True, related_name="decisions")
 
     class Meta:
         ordering = ["date", "id"]

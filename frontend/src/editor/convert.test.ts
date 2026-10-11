@@ -23,6 +23,16 @@ describe("editor <-> markdown round trip", () => {
     expect(out).toMatch(/[*-] one/);
   });
 
+  it("keeps [[wikilinks]], with labels and in lists", async () => {
+    const md =
+      "Link to [[Cohort definition]] and [[NfL|neurofilament]].\n\n* also [[Event audit]]\n";
+    const out = await roundTrip(md);
+    expect(out).toContain("[[Cohort definition]]");
+    expect(out).toContain("[[NfL|neurofilament]]");
+    expect(out).toContain("[[Event audit]]");
+    expect(await roundTrip(out)).toBe(out);
+  });
+
   it("keeps citation and other shortcodes, including underscores", async () => {
     const md =
       "See {{cite:1,2}} and {{protein:tnf-alpha}}.\n\n{{viz:evidence-matrix population=general_population}}\n";

@@ -15,6 +15,7 @@ import {
   useState,
 } from "react";
 import { api } from "../api/client";
+import { TYPE_LABEL, useLinkIndex } from "../features/links/data";
 import { useTheme } from "../theme/ThemeContext";
 import { blocksToMarkdown, markdownToBlocks } from "./convert";
 import { EmbedPicker } from "./EmbedPicker";
@@ -38,7 +39,7 @@ async function uploadImage(
   return { url: res.url, name: file.name, caption: alt };
 }
 
-type PickKind = "cite" | "paper" | "protein" | "viz";
+type PickKind = "cite" | "paper" | "protein" | "viz" | "link";
 
 export interface RichEditorHandle {
   focus: () => void;
@@ -68,6 +69,7 @@ export const RichEditor = forwardRef<RichEditorHandle, RichEditorProps>(
     ref,
   ) {
     const { theme } = useTheme();
+    const { data: linkIndex } = useLinkIndex();
     const editor = useCreateBlockNote({ schema, uploadFile: uploadImage });
     const last = useRef<string | null>(null);
     const timer = useRef<ReturnType<typeof setTimeout>>();
@@ -137,6 +139,26 @@ export const RichEditor = forwardRef<RichEditorHandle, RichEditorProps>(
         " ",
       ]);
 
+    // "@" opens a list of notes, papers and proteins to link to, inserted as [[Title]].
+    const linkItems = (query: string) => {
+      const needle = query.trim().toLowerCase();
+      return (linkIndex ?? [])
+        .filter(
+          (i) =>
+            !needle ||
+            `${i.title} ${(i.aliases ?? []).join(" ")}`
+              .toLowerCase()
+              .includes(needle),
+        )
+        .slice(0, 8)
+        .map((i) => ({
+          title: i.title,
+          subtext: `${TYPE_LABEL[i.type]} · ${i.context}`,
+          group: "Link to…",
+          onItemClick: () => insertEmbed("link")(i.title),
+        }));
+    };
+
     const items = (query: string) => {
       const mk = (
         title: string,
@@ -190,6 +212,12 @@ export const RichEditor = forwardRef<RichEditorHandle, RichEditorProps>(
         mk("Protein chip", "Link to a protein", () => setPicker("protein"), [
           "protein",
         ]),
+        mk(
+          "Link to a note",
+          "[[Title]] connects this to another page, paper or protein",
+          () => setPicker("link"),
+          ["link", "wikilink", "backlink", "note"],
+        ),
         mk("Visualisation", "Embed a chart", () => setPicker("viz"), [
           "viz",
           "chart",
@@ -225,12 +253,16 @@ export const RichEditor = forwardRef<RichEditorHandle, RichEditorProps>(
             triggerCharacter="/"
             getItems={async (q) => items(q) as never}
           />
+          <SuggestionMenuController
+            triggerCharacter="@"
+            getItems={async (q) => linkItems(q) as never}
+          />
         </BlockNoteView>
         {variant === "page" && (
           <div className="rich-editor__hint">
-            Type <kbd>/</kbd> for headings, lists, tables, code, images,
-            callouts and embeds. Do not upload images containing
-            participant-level data.
+            Type <kbd>@</kbd> to link a note, <kbd>/</kbd> for headings, lists,
+            tables, code, images, callouts and embeds. Do not upload images
+            containing participant-level data.
           </div>
         )}
         {picker && (

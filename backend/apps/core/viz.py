@@ -9,12 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.journal.models import LogPost
-from apps.literature.models import Finding, Paper
+from apps.literature.models import Finding, Paper, Tag
 from apps.literature.views import FindingFilter, PaperFilter
 from apps.project.models import Decision, PipelineStage, ResultEntry, StageStatus
 from apps.proteins.models import Protein, ProteinRole
 from apps.synthesis.models import Requirement, RequirementAssessment
 
+from . import links
 from .models import BaseModel, SiteSettings
 
 POPULATION_ROWS = ["sporadic_ftd", "genetic_ftd", "mutation_carriers", "general_population"]
@@ -377,6 +378,24 @@ def next_actions():
              "detail": "Condition, cohort and NfL involvement make the papers filterable.",
              "url": "/papers?reading_status=read"}
         )  # fmt: skip
+    items = links.load_items()
+    edges, wanted = links.analyse(items)
+    if wanted:
+        actions.append(
+            {"kind": "wanted", "title": f"{len(wanted)} linked page{'s are' if len(wanted) != 1 else ' is'} not written yet",
+             "detail": ", ".join(w["title"] for w in wanted[:3]) + ("…" if len(wanted) > 3 else ""),
+             "url": "/visualise/notes"}
+        )  # fmt: skip
+    linked_urls = {e["source"] for e in edges} | {e["target"] for e in edges}
+    lonely = [
+        i for i in items if i["type"] in {"docs", "log"} and i["url"] not in linked_urls and i["text"].strip()
+    ]  # fmt: skip
+    if lonely:
+        actions.append(
+            {"kind": "connect", "title": f"Connect {len(lonely)} note{'s' if len(lonely) != 1 else ''} to the rest",
+             "detail": "Type [[ in a note to link it to a paper, protein or another page.",
+             "url": "/visualise/notes"}
+        )  # fmt: skip
     return actions[:6]
 
 
@@ -402,6 +421,8 @@ def milestones():
         ("decisions", "Record a decision of your own", max(Decision.objects.count() - 5, 0), 1),
         ("result", "Enter your first result", ResultEntry.objects.count(), 1),
         ("half", "Finish half of the pipeline", done, max((len(stages) + 1) // 2, 1)),
+        ("links10", "Link 10 pairs of notes with [[ ]]", len(links.analyse(links.load_items())[0]), 10),
+        ("tags5", "Create 5 tags to organise your notes", Tag.objects.count(), 5),
     ]  # fmt: skip
     return [
         {"key": k, "label": label, "current": min(cur, tgt), "target": tgt, "done": cur >= tgt}

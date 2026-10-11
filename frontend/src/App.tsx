@@ -16,6 +16,7 @@ import { PaperPage, PapersPage } from "./pages/Papers";
 import { PipelinePage } from "./pages/Pipeline";
 import { ProteinPage, ProteinsPage } from "./pages/Proteins";
 import { SettingsPage } from "./pages/Settings";
+import { TagsPage } from "./pages/Tags";
 import { TrashPage } from "./pages/Trash";
 
 const Visualise = lazy(() => import("./pages/Visualise"));
@@ -40,6 +41,7 @@ export function App() {
       <Route path="/pipeline" element={<PipelinePage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/trash" element={<TrashPage />} />
+      <Route path="/tags" element={<TagsPage />} />
       <Route path="/log" element={<LogListPage />} />
       <Route path="/log/tags" element={<LogTagsPage />} />
       <Route path="/log/tags/:slug" element={<LogTagPage />} />

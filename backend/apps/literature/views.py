@@ -120,9 +120,48 @@ class PaperViewSet(NotebookViewSet):
 
 
 class TagViewSet(NotebookViewSet):
-    queryset = Tag.objects.all()
     serializer_class = TagSerializer
     search_fields = ["name"]
+    filterset_fields = ["slug"]
+
+    def get_queryset(self):
+        live = Q(deleted_at__isnull=True)
+        return (
+            Tag.objects.annotate(
+                n_papers=Count("papers", filter=Q(papers__deleted_at__isnull=True), distinct=True),
+                n_proteins=Count(
+                    "proteins", filter=Q(proteins__deleted_at__isnull=True), distinct=True
+                ),
+                n_docs=Count(
+                    "doc_pages", filter=Q(doc_pages__deleted_at__isnull=True), distinct=True
+                ),
+                n_log=Count(
+                    "log_posts", filter=Q(log_posts__deleted_at__isnull=True), distinct=True
+                ),
+                n_decisions=Count(
+                    "decisions", filter=Q(decisions__deleted_at__isnull=True), distinct=True
+                ),
+            )
+            .filter(live)
+            .order_by("name")
+        )
+
+    @action(detail=True, methods=["post"])
+    def merge(self, request, pk=None):
+        """Fold this tag into another: everything tagged with it gets the other tag instead."""
+        source = self.get_object()
+        try:
+            target = Tag.objects.get(pk=request.data.get("into"))
+        except (Tag.DoesNotExist, ValueError, TypeError):
+            return Response({"into": "Choose the tag to merge into."}, status=400)
+        if target.pk == source.pk:
+            return Response({"into": "Choose a different tag."}, status=400)
+        for rel in ("papers", "proteins", "doc_pages", "log_posts", "decisions"):
+            for obj in getattr(source, rel).all():
+                obj.tags.add(target)
+                obj.tags.remove(source)
+        source.delete()
+        return Response(TagSerializer(self.get_queryset().get(pk=target.pk)).data)
 
 
 class FindingFilter(df.FilterSet):

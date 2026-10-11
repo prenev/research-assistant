@@ -15,7 +15,7 @@ export const ADMONITION_KINDS = [
   "warning",
   "danger",
 ] as const;
-export const EMBED_KINDS = ["cite", "paper", "protein", "viz"] as const;
+export const EMBED_KINDS = ["cite", "paper", "protein", "viz", "link"] as const;
 
 export const AdmonitionBlock = createReactBlockSpec(
   {
@@ -106,7 +106,9 @@ export const EmbedInline = createReactInlineContentSpec(
       <span className="badge badge--primary chip" title="Embed">
         {inlineContent.props.kind === "cite"
           ? `[${inlineContent.props.arg}]`
-          : `${inlineContent.props.kind}: ${inlineContent.props.arg}`}
+          : inlineContent.props.kind === "link"
+            ? `[[${inlineContent.props.arg.split("|").pop()}]]`
+            : `${inlineContent.props.kind}: ${inlineContent.props.arg}`}
       </span>
     ),
   },

@@ -8,6 +8,8 @@ import { ItemActions } from "../components/ItemActions";
 import { Markdown } from "../components/Markdown";
 import { NoteSection } from "../components/NoteSection";
 import { PageShell } from "../components/PageShell";
+import { Backlinks } from "../features/links/Backlinks";
+import { TagPicker } from "../components/TagPicker";
 import { FTD_SUBTYPES } from "../forms/config";
 import { useForms } from "../forms/FormHost";
 import { readParams, sortBy, withParam } from "../lib/params";
@@ -378,7 +380,6 @@ export function PaperPage() {
   });
   const { data: requirements } = useList("requirements");
   const { data: posts } = useList("log-posts");
-  const { data: tags } = useList("tags");
   const { data: fieldMeta } = useFormMeta("papers");
   const { editing } = useEditMode();
   const { openForm } = useForms();
@@ -461,7 +462,6 @@ export function PaperPage() {
   const myPosts = (posts ?? []).filter((p) =>
     p.linked_papers.includes(paper.id),
   );
-  const myTags = (tags ?? []).filter((t) => paper.tags.includes(t.id));
   return (
     <PageShell
       title={paper.title}
@@ -469,12 +469,8 @@ export function PaperPage() {
     >
       <p>
         <Badge value={paper.reading_status} /> {paper.authors}{" "}
-        {myTags.map((t) => (
-          <span key={t.id} className="tag-pill">
-            {t.name}
-          </span>
-        ))}
       </p>
+      <TagPicker endpoint="papers" item={paper} />
       {paper.ieee_reference && (
         <div className="reference-box">
           <span>
@@ -599,6 +595,7 @@ export function PaperPage() {
           </ul>
         </>
       )}
+      <Backlinks url={`/papers/${paper.slug}`} />
     </PageShell>
   );
 }

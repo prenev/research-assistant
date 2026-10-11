@@ -132,3 +132,15 @@ Deviations from, or interpretations of, `PROMPT.md`.
 45. **Motivation features are computed, not stored.** Streaks, the weekly ring, next actions and
     milestones are derived from existing history at request time, so there is nothing to keep in sync.
     The weekly goal is the only new setting.
+46. **Tags are one shared list, with colour from the start.** Every tag gets a stable colour on creation
+    (existing ones were back-filled), tinted pills keep normal text ink for contrast, and names are
+    unique ignoring case. Tags are saved immediately (they are labels, not content), so they skip the
+    draft/Save step used for text.
+47. **Links are computed, not stored.** `[[Title]]`, `{{paper:…}}`, `{{protein:…}}`, `{{cite:n}}` and a
+    log post's linked papers/proteins are read from the text per request. Cost is fine at notebook
+    scale and nothing can go stale. Titles win over aliases when two items share a name; links inside
+    code are ignored.
+48. **Wikilinks are Markdown text, `[[Title]]`,** so exports and the raw Markdown stay readable. The
+    editor shows them as chips and the `@` menu inserts them.
+49. **Graph encoding:** shape is the kind of note and colour is the first tag, so colour is not the
+    only thing carrying meaning. Unlinked notes are hidden by default and listed below instead.

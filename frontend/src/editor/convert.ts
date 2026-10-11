@@ -3,7 +3,8 @@ import type { NotebookEditor } from "./schema";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Any = any;
-const SHORTCODE = /\{\{\s*(cite|paper|protein|viz)\s*:\s*([^}]*?)\s*\}\}/g;
+const SHORTCODE =
+  /\{\{\s*(cite|paper|protein|viz)\s*:\s*([^}]*?)\s*\}\}|\[\[([^[\]\n]+?)\]\]/g;
 
 /** Replace `{{kind:arg}}` in text nodes with embed inline nodes. */
 function withEmbeds(content: Any): Any {
@@ -18,7 +19,10 @@ function withEmbeds(content: Any): Any {
     for (const m of node.text.matchAll(SHORTCODE)) {
       if (m.index > last)
         out.push({ ...node, text: node.text.slice(last, m.index) });
-      out.push({ type: "embed", props: { kind: m[1], arg: m[2] } });
+      out.push({
+        type: "embed",
+        props: m[3] ? { kind: "link", arg: m[3] } : { kind: m[1], arg: m[2] },
+      });
       last = m.index + m[0].length;
     }
     if (last === 0) out.push(node);
@@ -68,7 +72,14 @@ function stripEmbeds(content: Any): Any {
   if (!Array.isArray(content)) return content;
   return content.map((n: Any) =>
     n.type === "embed"
-      ? { type: "text", text: `{{${n.props.kind}:${n.props.arg}}}`, styles: {} }
+      ? {
+          type: "text",
+          text:
+            n.props.kind === "link"
+              ? `[[${n.props.arg}]]`
+              : `{{${n.props.kind}:${n.props.arg}}}`,
+          styles: {},
+        }
       : n,
   );
 }
@@ -81,7 +92,12 @@ function stripBlocks(blocks: Any[]): Any[] {
 }
 
 const unescapeShortcodes = (s: string) =>
-  s.replace(/\{\{[^}]*\}\}/g, (m) => m.replace(/\\([_*\\])/g, "$1"));
+  s
+    .replace(/\{\{[^}]*\}\}/g, (m) => m.replace(/\\([_*\\])/g, "$1"))
+    .replace(
+      /\\\[\\\[([^\n]*?)\\\]\\\]/g,
+      (_m, inner: string) => `[[${inner.replace(/\\([_*\\|])/g, "$1")}]]`,
+    );
 
 const isEmpty = (b: Any) =>
   b.type === "paragraph" &&

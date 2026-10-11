@@ -14,7 +14,7 @@ from apps.project.views import DecisionViewSet, PipelineStageViewSet, ResultEntr
 from apps.proteins.views import ProteinViewSet
 from apps.synthesis.views import RequirementAssessmentViewSet, RequirementViewSet
 
-from . import tools, views, viz
+from . import links, tools, views, viz
 
 router = DefaultRouter()
 router.register("papers", PaperViewSet, basename="paper")
@@ -49,6 +49,10 @@ urlpatterns = [
     path("viz/timeline/", viz.TimelineView.as_view()),
     path("viz/evidence-chain/", viz.EvidenceChainView.as_view()),
     path("viz/dashboard/", viz.DashboardView.as_view()),
+    path("links/index/", links.LinkIndexView.as_view()),
+    path("links/graph/", links.LinkGraphView.as_view()),
+    path("links/backlinks/", links.BacklinksView.as_view()),
+    path("tag-items/", links.TagItemsView.as_view()),
     path("trash/", tools.TrashView.as_view()),
     path("uploads/", tools.UploadView.as_view()),
     path("export/json/", tools.ExportJsonView.as_view()),
